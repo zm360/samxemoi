@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hành Trang Ngày Rời Thân - Phân Tích & Mô Phỏng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Energetic & Playful (Sunrise Theme: Deep Blue, Bright Gold, Warm Orange, Clean White) - Chosen for high contrast between "Light/Awakening" and "Darkness/Ignorance" while maintaining a modern, engaging look. -->
+    
+    <style>
+        /* Chart Container Styling Requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        
+        /* Custom Scrollbar for clean look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #F59E0B; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D97706; 
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #FAFAF9; /* Warm neutral background */
+            color: #1E3A8A; /* Deep Blue text */
+        }
+    </style>
+    <!-- Application Structure Plan: 
+         1. Hero Section: Sets the "Car Metaphor" context immediately.
+         2. The Metaphor Explorer: Interactive comparison cards (Body vs. Consciousness) to establish definitions.
+         3. The Consciousness Audit (Interactive Radar Chart): The core interactivity. Users self-assess on 4 key spiritual metrics. This replaces the linear "questions" in the text with an active self-reflection tool.
+         4. The Law of Physics (Bar Chart): Visualizing the "Ritual vs. Essence" argument. Shows that external rituals have low weight compared to internal mindset.
+         5. The Destination Simulator (Dynamic Donut Chart): Uses the data from the Audit to predict the "Next Car" (Afterlife state), demonstrating the "Instant Karma" concept.
+         6. Conclusion: Final call to action/Mindfulness trigger.
+         Rationale: This structure moves from Concept -> Self-Reflection -> Logic/Law -> Consequence, forcing the user to engage with the text's hard truths rather than passively reading them.
+    -->
+    
+    <!-- Visualization & Content Choices:
+         1. Metaphor Explorer: HTML/CSS Cards with Toggle. Goal: Inform. Justification: Best for side-by-side text comparison. NO SVG.
+         2. Consciousness Audit: Chart.js Radar Chart. Goal: Relationships/Compare. Justification: Shows the balance (or lack thereof) between different aspects of spiritual practice (Compassion, Detachment, Honesty, Calm). Allows user input to visualize their "shape" of mind. NO SVG.
+         3. Ritual vs. Essence: Chart.js Stacked Bar. Goal: Compare. Justification: Visually weighs the "value" of external acts vs. internal state. NO SVG.
+         4. Destination Probability: Chart.js Doughnut. Goal: Inform/Result. Justification: Shows the resulting "mix" of the next existence based on current inputs. NO SVG.
+    -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-50 text-slate-800">
+
+    <!-- Navigation -->
+    <nav class="bg-blue-900 text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="font-bold text-xl tracking-wider">🏎️ SẮM XE MỚI</div>
+            <div class="hidden md:flex space-x-6 text-sm font-medium">
+                <a href="#metaphor" class="hover:text-yellow-400 transition">Ẩn Dụ</a>
+                <a href="#audit" class="hover:text-yellow-400 transition">Kiểm Tra Cấu Hình</a>
+                <a href="#physics" class="hover:text-yellow-400 transition">Quy Luật</a>
+                <a href="#destination" class="hover:text-yellow-400 transition">Dự Báo</a>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden text-yellow-400 text-2xl">☰</button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden bg-blue-800 p-4 md:hidden">
+            <a href="#metaphor" class="block py-2 hover:text-yellow-400">Ẩn Dụ</a>
+            <a href="#audit" class="block py-2 hover:text-yellow-400">Kiểm Tra Cấu Hình</a>
+            <a href="#physics" class="block py-2 hover:text-yellow-400">Quy Luật</a>
+            <a href="#destination" class="block py-2 hover:text-yellow-400">Dự Báo</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white py-16 px-4 text-center shadow-md">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">Hành Trang Vô Giá Cho Ngày Rời Thân</h1>
+            <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">"Sống rồi ai cũng phải chết. Nhưng chết không phải là mất hết. Chết chỉ là đổi một chiếc xe cũ."</p>
+            <a href="#audit" class="inline-block bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">
+                Kiểm Tra "Xe" Của Bạn
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 space-y-16">
+
+        <!-- Section 1: The Metaphor (Concept) -->
+        <section id="metaphor" class="scroll-mt-24">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <h2 class="text-3xl font-bold text-blue-900 mb-4">1. Bản Chất Của Cuộc Chuyển Giao</h2>
+                <p class="text-lg text-gray-700">
+                    Để hiểu được cái chết, ta cần định nghĩa lại mối quan hệ giữa Thân Xác và Ý Thức. 
+                    Đây không phải là sự chấm dứt, mà là một sự thay thế phương tiện dựa trên luật bảo toàn năng lượng. 
+                    Hãy so sánh hai khái niệm dưới đây để thấu hiểu cốt lõi của vấn đề.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <!-- Card 1: Old Car -->
+                <div class="bg-white rounded-xl shadow-lg border-l-8 border-gray-400 overflow-hidden hover:shadow-2xl transition duration-300">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <span class="text-4xl mr-4">🚗</span>
+                            <h3 class="text-2xl font-bold text-gray-700">Thân Xác (Xe Cũ)</h3>
+                        </div>
+                        <ul class="space-y-3 text-gray-600">
+                            <li class="flex items-start"><span class="text-red-500 mr-2">✖</span> Có hạn sử dụng, chắc chắn sẽ hư hỏng.</li>
+                            <li class="flex items-start"><span class="text-red-500 mr-2">✖</span> Được cấu tạo từ vật chất (đất, nước, gió, lửa).</li>
+                            <li class="flex items-start"><span class="text-red-500 mr-2">✖</span> Khi hỏng (chết), nó trở thành phế liệu, không nên luyến tiếc.</li>
+                        </ul>
+                        <div class="mt-6 bg-gray-100 p-4 rounded text-sm italic border-l-4 border-gray-400">
+                            "Không ai ôm đống sắt vụn mà than khóc. Người hiểu chuyện lo sắm xe mới."
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Driver -->
+                <div class="bg-white rounded-xl shadow-lg border-l-8 border-yellow-500 overflow-hidden hover:shadow-2xl transition duration-300">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <span class="text-4xl mr-4">🧘</span>
+                            <h3 class="text-2xl font-bold text-blue-900">Ý Thức (Người Lái)</h3>
+                        </div>
+                        <ul class="space-y-3 text-gray-600">
+                            <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> Tồn tại liên tục, chuyển từ dạng này sang dạng khác.</li>
+                            <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> Mang theo "Hành Trang" là thói quen, tần số rung động.</li>
+                            <li class="flex items-start"><span class="text-green-500 mr-2">✔</span> Quyết định chất lượng của "Chiếc xe mới" dựa trên khả năng lái.</li>
+                        </ul>
+                        <div class="mt-6 bg-yellow-50 p-4 rounded text-sm italic border-l-4 border-yellow-500 text-blue-900">
+                            "Sinh tử là bài kiểm tra của ý thức. Đáp án nằm trong từng ý nghĩ ngay lúc này."
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The Audit (Interactive) -->
+        <section id="audit" class="bg-white rounded-2xl shadow-xl p-8 scroll-mt-24 border border-gray-100">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                
+                <!-- Controls -->
+                <div>
+                    <h2 class="text-3xl font-bold text-blue-900 mb-4">2. Kiểm Tra Cấu Hình "Xe Mới"</h2>
+                    <p class="text-gray-700 mb-6">
+                        "Xe mới" (kiếp sau/cảnh giới tiếp theo) phụ thuộc hoàn toàn vào "Cấu hình tâm thức" của bạn hiện tại. 
+                        Đừng dối lòng. Hãy tự đánh giá mức độ trung thực của bạn với các tiêu chí dưới đây (0 = Kém, 10 = Tuyệt đối).
+                        <br><span class="text-sm text-red-500 font-semibold italic">* Kéo thanh trượt để xem hình dáng tâm thức của bạn.</span>
+                    </p>
+
+                    <div class="space-y-6">
+                        <!-- Control 1 -->
+                        <div>
+                            <label class="flex justify-between font-semibold text-gray-700 mb-2">
+                                <span>Độ Tĩnh Lặng (Sóng Thức)</span>
+                                <span id="val-calm" class="text-blue-600">5</span>
+                            </label>
+                            <input type="range" id="input-calm" min="0" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                            <p class="text-xs text-gray-500 mt-1">Khả năng giữ tâm bình an trước nghịch cảnh, không hoảng loạn khi cận tử.</p>
+                        </div>
+
+                        <!-- Control 2 -->
+                        <div>
+                            <label class="flex justify-between font-semibold text-gray-700 mb-2">
+                                <span>Sự Ly Tham (Buông Xả)</span>
+                                <span id="val-detach" class="text-blue-600">5</span>
+                            </label>
+                            <input type="range" id="input-detach" min="0" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                            <p class="text-xs text-gray-500 mt-1">Mức độ không bám víu vào tài sản, danh vọng và cái tôi.</p>
+                        </div>
+
+                        <!-- Control 3 -->
+                        <div>
+                            <label class="flex justify-between font-semibold text-gray-700 mb-2">
+                                <span>Sự Trung Thực (Chân Thật)</span>
+                                <span id="val-honest" class="text-blue-600">5</span>
+                            </label>
+                            <input type="range" id="input-honest" min="0" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                            <p class="text-xs text-gray-500 mt-1">Không dối mình, dối người. Đối diện sự thật trần trụi.</p>
+                        </div>
+
+                        <!-- Control 4 -->
+                        <div>
+                            <label class="flex justify-between font-semibold text-gray-700 mb-2">
+                                <span>Tình Thương (Từ Bi)</span>
+                                <span id="val-love" class="text-blue-600">5</span>
+                            </label>
+                            <input type="range" id="input-love" min="0" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                            <p class="text-xs text-gray-500 mt-1">Không còn oán hận, tha thứ cho mọi lỗi lầm.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualization -->
+                <div class="bg-stone-50 rounded-xl p-4 flex flex-col items-center justify-center">
+                    <h3 class="text-lg font-bold text-gray-600 mb-2">Biểu Đồ Năng Lượng Tâm Thức</h3>
+                    <div class="chart-container">
+                        <canvas id="auditChart"></canvas>
+                    </div>
+                    <div id="audit-feedback" class="mt-4 text-center font-bold text-lg text-blue-800">
+                        Đang phân tích...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: The Physics of Karma (Analysis) -->
+        <section id="physics" class="scroll-mt-24">
+             <div class="text-center max-w-3xl mx-auto mb-10">
+                <h2 class="text-3xl font-bold text-blue-900 mb-4">3. Quy Luật Vận Hành (Không Phải Mê Tín)</h2>
+                <p class="text-lg text-gray-700">
+                   Nhiều người lầm tưởng rằng các nghi lễ tôn giáo (tụng kinh, rửa tội, cầu nguyện) có thể "hối lộ" được quy luật sinh tử. 
+                   Thực tế, tần số rung động của bạn mới là thứ quyết định. Một cái tâm đầy sợ hãi và tham lam không thể được che đậy bằng lời kinh.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Explainer Text -->
+                <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                    <h3 class="text-xl font-bold text-blue-800 mb-4">Tại Sao Nghi Lễ Thất Bại?</h3>
+                    <ul class="space-y-4">
+                        <li class="flex gap-3">
+                            <span class="font-bold text-2xl text-yellow-500">1</span>
+                            <p><strong>Niệm Phật bằng miệng:</strong> Nếu miệng niệm A Di Đà nhưng tâm còn lo mất nhà, mất của, thì tần số phát ra là "Sợ hãi" chứ không phải "Thanh tịnh".</p>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="font-bold text-2xl text-yellow-500">2</span>
+                            <p><strong>Cầu Chúa bằng nỗi sợ:</strong> Nếu tin Chúa nhưng khi chết lại kinh hoàng tột độ, chứng tỏ niềm tin chưa đủ mạnh để thắng bản năng sinh tồn.</p>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="font-bold text-2xl text-yellow-500">3</span>
+                            <p><strong>Luật Hấp Dẫn:</strong> Cái gì giống nhau sẽ hút nhau. Tâm thức nặng nề (tham sân si) sẽ hút vào cõi nặng nề (địa ngục/súc sinh). Tâm thức nhẹ nhàng sẽ bay lên.</p>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Chart: Weight of Ritual vs Essence -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-700 mb-2 text-center">Tỷ Trọng Quyết Định Cõi Về</h3>
+                    <div class="chart-container">
+                        <canvas id="physicsChart"></canvas>
+                    </div>
+                    <p class="text-sm text-center text-gray-500 mt-2">Nghi thức chỉ là vỏ. Tâm thức mới là lõi.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: The Destination Prediction -->
+        <section id="destination" class="scroll-mt-24 mb-16">
+            <div class="bg-indigo-900 text-white rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+                <!-- Decorative background element -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-yellow-500 opacity-10 rounded-full -mr-16 -mt-16"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6 text-yellow-400">4. Dự Báo "Xe Mới" Của Bạn</h2>
+                        <p class="text-blue-100 text-lg mb-6">
+                            Dựa trên các chỉ số bạn đã tự chấm điểm ở phần "Kiểm Tra Cấu Hình", hệ thống mô phỏng khả năng điểm đến tiếp theo của bạn.
+                            <br><br>
+                            Hãy nhớ: <em>"Không ai nói dối được lúc chết. Sinh tử không phải bản án, nó là bài kiểm tra."</em>
+                        </p>
+                        <div id="prediction-text" class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20">
+                            <!-- Dynamic Content will appear here -->
+                            <h3 class="text-xl font-bold text-yellow-300 mb-2">Trạng Thái: Đang chờ dữ liệu...</h3>
+                            <p>Hãy điều chỉnh các thanh trượt ở trên để xem kết quả.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <div class="chart-container" style="max-height: 350px;">
+                            <canvas id="destinationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conclusion -->
+        <footer class="text-center max-w-2xl mx-auto py-8 border-t border-gray-300">
+            <h3 class="text-2xl font-bold text-blue-900 mb-4">Lời Kết Của Lão Sư</h3>
+            <p class="italic text-gray-600 mb-6">
+                "Đêm nay, gió rừng không giảng pháp, trăng cũng không thuyết kinh. 
+                Chỉ có lá rơi và thân người còn thở, đang học cách đi cho đàng hoàng, trước khi phải rời xe."
+            </p>
+            <div class="bg-yellow-100 text-yellow-800 py-3 px-6 rounded-lg inline-block font-semibold">
+                Đáp án không nằm trong sách này, mà nằm trong từng ý nghĩ các con đang nuôi dưỡng, ngay lúc này.
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- 1. Utility: Wrap Text for Charts ---
+        function wrapText(str, maxChars) {
+            if (!str) return [];
+            const words = str.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if (currentLine.length + 1 + words[i].length <= maxChars) {
+                    currentLine += ' ' + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        // --- 2. Chart Configurations & Initialization ---
+
+        // A. Audit Chart (Radar)
+        const ctxAudit = document.getElementById('auditChart').getContext('2d');
+        const auditChart = new Chart(ctxAudit, {
+            type: 'radar',
+            data: {
+                labels: ['Tĩnh Lặng', 'Ly Tham', 'Trung Thực', 'Từ Bi'],
+                datasets: [{
+                    label: 'Cấu Hình Tâm Thức Hiện Tại',
+                    data: [5, 5, 5, 5],
+                    backgroundColor: 'rgba(245, 158, 11, 0.4)', // Yellow-Orange transparent
+                    borderColor: 'rgba(217, 119, 6, 1)', // Dark Orange
+                    pointBackgroundColor: 'rgba(30, 58, 138, 1)', // Blue
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#E5E7EB' },
+                        grid: { color: '#E5E7EB' },
+                        pointLabels: {
+                            font: { size: 14, weight: 'bold', family: "'Segoe UI', sans-serif" },
+                            color: '#1E3A8A'
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 10,
+                        ticks: { display: false } // Hide numbers on axis for cleaner look
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // B. Physics Chart (Stacked Bar)
+        const ctxPhysics = document.getElementById('physicsChart').getContext('2d');
+        const physicsChart = new Chart(ctxPhysics, {
+            type: 'bar',
+            data: {
+                labels: wrapText('Người Tụng Kinh Hình Thức, Người Sống Tỉnh Thức', 16),
+                datasets: [
+                    {
+                        label: 'Nghi Lễ / Hình Thức Bên Ngoài',
+                        data: [90, 10], // High ritual for type 1, Low for type 2
+                        backgroundColor: 'rgba(156, 163, 175, 0.5)', // Grey
+                        borderColor: '#9CA3AF',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Chất Lượng Tâm Thức (Tần Số)',
+                        data: [10, 90], // Low essence for type 1, High for type 2
+                        backgroundColor: 'rgba(245, 158, 11, 0.8)', // Vibrant Gold
+                        borderColor: '#D97706',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true },
+                    y: { 
+                        stacked: true,
+                        title: { display: true, text: 'Tỷ trọng tác động lên Cõi Về (%)' }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    },
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // C. Destination Chart (Doughnut)
+        const ctxDest = document.getElementById('destinationChart').getContext('2d');
+        const destinationChart = new Chart(ctxDest, {
+            type: 'doughnut',
+            data: {
+                labels: ['Cõi Lành (Xe Tốt)', 'Cõi Khổ (Xe Nát)', 'Trung Gian (Xe Thường)'],
+                datasets: [{
+                    data: [33, 33, 34], // Initial equal split
+                    backgroundColor: [
+                        '#F59E0B', // Gold (Good)
+                        '#EF4444', // Red (Bad)
+                        '#93C5FD'  // Light Blue (Neutral)
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        position: 'bottom',
+                        labels: { color: '#FFFFFF' }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- 3. Interaction Logic ---
+
+        const inputs = {
+            calm: document.getElementById('input-calm'),
+            detach: document.getElementById('input-detach'),
+            honest: document.getElementById('input-honest'),
+            love: document.getElementById('input-love')
+        };
+
+        const displays = {
+            calm: document.getElementById('val-calm'),
+            detach: document.getElementById('val-detach'),
+            honest: document.getElementById('val-honest'),
+            love: document.getElementById('val-love')
+        };
+
+        const feedbackBox = document.getElementById('audit-feedback');
+        const predictionText = document.getElementById('prediction-text');
+
+        function updateSimulation() {
+            // Get values
+            const vCalm = parseInt(inputs.calm.value);
+            const vDetach = parseInt(inputs.detach.value);
+            const vHonest = parseInt(inputs.honest.value);
+            const vLove = parseInt(inputs.love.value);
+
+            // Update Value Displays
+            displays.calm.innerText = vCalm;
+            displays.detach.innerText = vDetach;
+            displays.honest.innerText = vHonest;
+            displays.love.innerText = vLove;
+
+            // Update Radar Chart
+            auditChart.data.datasets[0].data = [vCalm, vDetach, vHonest, vLove];
+            auditChart.update();
+
+            // Calculate "Karma Score" (Average)
+            const average = (vCalm + vDetach + vHonest + vLove) / 4;
+
+            // Update Destination Chart & Text Logic
+            let good = 0, bad = 0, neutral = 0;
+            let statusTitle = "";
+            let statusDesc = "";
+
+            if (average >= 8) {
+                // High Score -> High chance of Good Realm
+                good = 90; bad = 5; neutral = 5;
+                statusTitle = "Hạng Thương Gia (Xe Sang)";
+                statusDesc = "Tâm thức bạn nhẹ nhàng, sáng sủa. Bạn đã chuẩn bị rất tốt. Khi rời thân, bạn sẽ tự tại bước sang cảnh giới an lành.";
+                feedbackBox.className = "mt-4 text-center font-bold text-lg text-green-600";
+                feedbackBox.innerText = "Tâm Thức Vững Vàng";
+            } else if (average >= 5) {
+                // Mid Score -> Mixed
+                good = 30; bad = 20; neutral = 50;
+                statusTitle = "Hạng Phổ Thông (Xe Thường)";
+                statusDesc = "Bạn còn nhiều dính mắc. Vui buồn lẫn lộn. Nguy cơ bị nghiệp lực lôi kéo lúc lâm chung là rất cao. Cần buông xả nhiều hơn.";
+                feedbackBox.className = "mt-4 text-center font-bold text-lg text-yellow-600";
+                feedbackBox.innerText = "Cần Nỗ Lực Thêm";
+            } else {
+                // Low Score -> High chance of Bad Realm
+                good = 5; bad = 85; neutral = 10;
+                statusTitle = "Cảnh Báo: Xe Nát";
+                statusDesc = "Tâm chứa đầy tham, sân và sợ hãi. Nếu rời thân lúc này, bạn sẽ rơi vào trạng thái hoảng loạn và đau khổ (Địa ngục do tâm tạo).";
+                feedbackBox.className = "mt-4 text-center font-bold text-lg text-red-600";
+                feedbackBox.innerText = "Nguy Hiểm! Cần Thay Đổi Ngay";
+            }
+
+            // Update Destination Chart Data
+            destinationChart.data.datasets[0].data = [good, bad, neutral];
+            destinationChart.update();
+
+            // Update Text UI
+            predictionText.innerHTML = `
+                <h3 class="text-xl font-bold text-yellow-300 mb-2">${statusTitle}</h3>
+                <p>${statusDesc}</p>
+                <div class="mt-3 text-sm opacity-80 border-t border-white/20 pt-2">
+                    Điểm trung bình tâm thức: <strong>${average.toFixed(1)}/10</strong>
+                </div>
+            `;
+        }
+
+        // Add Listeners
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('input', updateSimulation);
+        });
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Initialize on load
+        updateSimulation();
+
+    </script>
+</body>
+</html>
