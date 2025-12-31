@@ -3,375 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trạm Dịch Vụ Tâm Thức | Hệ Thống Kiểm Tra Phương Tiện Con Người</title>
+    <title>Trạm Dịch Vụ Tâm Thức | Chuyên Gia Vũ Trụ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #00f2ff;
-            --danger: #ff4d4d;
-            --success: #00ff88;
-            --warning: #ffcc00;
-            --bg-dark: #05070a;
-        }
+        :root { --primary: #00f2ff; --danger: #ff4d4d; --success: #00ff88; --bg-dark: #05070a; }
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
             color: #e2e8f0;
-            background-image: radial-gradient(circle at 10% 20%, rgba(0, 242, 255, 0.05) 0%, transparent 40%),
-                              radial-gradient(circle at 90% 80%, rgba(255, 77, 77, 0.05) 0%, transparent 40%);
+            background-image: radial-gradient(circle at 10% 20%, rgba(0, 242, 255, 0.05) 0%, transparent 40%);
         }
         .font-header { font-family: 'Space Grotesk', sans-serif; }
-        .glass {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-        }
-        .neo-border { border: 1px solid var(--primary); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
-        .slider-custom {
-            -webkit-appearance: none; width: 100%; height: 6px; border-radius: 10px; background: #1e293b; outline: none;
-        }
-        .slider-custom::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; cursor: pointer; background: white; border: 2px solid var(--primary);
-        }
-        .tab-active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .slider-custom { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 10px; background: #1e293b; outline: none; }
+        .slider-custom::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; cursor: pointer; background: white; border: 2px solid var(--primary); }
         .scroll-hidden::-webkit-scrollbar { width: 4px; }
         .scroll-hidden::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        .status-pulse { animation: pulse-soft 2s infinite; }
+        .status-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .vehicle-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <!-- Header Section -->
+    <!-- Header -->
     <header class="glass sticky top-0 z-50 border-b border-slate-800">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center text-black font-black text-xl">Ω</div>
+                <div class="w-10 h-10 bg-cyan-500 rounded flex items-center justify-center text-black font-black text-xl">Ω</div>
                 <div>
-                    <h1 class="font-header font-bold text-xl tracking-tight text-white">TRẠM DỊCH VỤ TÂM THỨC</h1>
-                    <p class="text-[10px] text-cyan-400 uppercase tracking-widest font-bold">Phiên bản: Giải Phẫu Sinh Tử 4.0</p>
+                    <h1 class="font-header font-bold text-lg text-white uppercase tracking-tighter">Trạm Dịch Vụ Tâm Thức</h1>
+                    <p class="text-[9px] text-cyan-400 font-bold tracking-[0.2em]">CỐ VẤN: CHUYÊN GIA VŨ TRỤ</p>
                 </div>
             </div>
-            <div class="flex gap-4 text-xs font-bold">
-                <div class="px-3 py-1 rounded bg-slate-800 border border-slate-700">CỐ VẤN: LÃO GIÀ NGUYÊN CHÍNH</div>
-                <div class="px-3 py-1 rounded bg-red-900/30 text-red-400 border border-red-800">BÃO MẶT TRỜI: ĐANG CẬN KỀ</div>
+            <div id="connection-status" class="text-[10px] font-bold text-slate-500 flex items-center gap-2 italic">
+                <div class="w-2 h-2 rounded-full bg-slate-600"></div> HỆ THỐNG NGOẠI TUYẾN
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- LEFT: BẢNG KIỂM TRA THÔNG SỐ (INPUT) -->
+        <!-- LEFT: 30 CHỈ SỐ KIỂM ĐỊNH -->
         <div class="lg:col-span-8 space-y-6">
-            <div class="glass rounded-3xl p-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10">
-                    <svg width="200" height="200" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="white" stroke-width="0.5" fill="none"/></svg>
+            <div class="glass rounded-3xl p-8 shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="font-header text-xl font-bold text-white uppercase italic tracking-widest">Kiểm định phương tiện</h2>
+                    <span class="text-[10px] bg-white/10 px-2 py-1 rounded text-slate-400 font-mono">CODE: SCAN_V5.0</span>
                 </div>
                 
-                <h2 class="font-header text-2xl font-bold text-white mb-2 uppercase italic">1. Khám xét định kỳ phương tiện</h2>
-                <p class="text-slate-400 text-sm mb-8">Hãy trung thực kéo các thanh thông số. AI sẽ phân tích dựa trên "Dữ liệu lái xe" của bạn.</p>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <!-- KHỐI 1: RÁC THẢI & LỖI HỆ THỐNG (TRẢ LẠI) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <!-- TRẢ LẠI (18 Độc tố/Rác thải) -->
                     <div class="space-y-6">
-                        <div class="flex items-center gap-2 text-red-400 font-bold text-xs uppercase tracking-widest border-b border-red-900/30 pb-2">
-                            <span>⚠</span> Danh mục rác thải (Cần dọn dẹp)
+                        <div class="flex items-center gap-2 text-red-500 font-bold text-[10px] uppercase tracking-[0.2em] border-b border-red-900/30 pb-2">
+                            <span>⚠</span> Danh mục cần gỡ bỏ (Dữ liệu rác)
                         </div>
-                        <div id="trash-list" class="space-y-5 max-h-[600px] overflow-y-auto pr-4 scroll-hidden">
-                            <!-- JS Inject -->
-                        </div>
+                        <div id="trash-list" class="space-y-5 max-h-[550px] overflow-y-auto pr-4 scroll-hidden"></div>
                     </div>
 
-                    <!-- KHỐI 2: NĂNG LƯỢNG & PHỤ TÙNG (DÂNG HIẾN) -->
+                    <!-- DÂNG HIẾN (12 Nguồn lực/Linh kiện) -->
                     <div class="space-y-6">
-                        <div class="flex items-center gap-2 text-green-400 font-bold text-xs uppercase tracking-widest border-b border-green-900/30 pb-2">
-                            <span>✦</span> Linh kiện cao cấp (Cần nâng cấp)
+                        <div class="flex items-center gap-2 text-green-400 font-bold text-[10px] uppercase tracking-[0.2em] border-b border-green-900/30 pb-2">
+                            <span>✦</span> Linh kiện nâng cấp (Năng lượng)
                         </div>
-                        <div id="parts-list" class="space-y-5 max-h-[600px] overflow-y-auto pr-4 scroll-hidden">
-                            <!-- JS Inject -->
-                        </div>
+                        <div id="parts-list" class="space-y-5 max-h-[550px] overflow-y-auto pr-4 scroll-hidden"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- PHẦN CHÚ GIẢI & YÊU CẦU SỬA CHỮA -->
-            <div id="diagnostics-panel" class="glass rounded-3xl p-8 border-l-4 border-cyan-500">
-                <h2 class="font-header text-xl font-bold text-white mb-4">PHIẾU CHẨN ĐOÁN & HƯỚNG DẪN SỬA XE</h2>
-                <div id="diagnostic-content" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="p-4 bg-black/40 rounded-xl border border-slate-800">
-                        <p class="text-xs text-slate-500 mb-1 uppercase font-bold">Tình trạng khung gầm</p>
-                        <p id="diag-chassis" class="text-sm font-semibold">Đang phân tích...</p>
+            <!-- CHUYÊN SÂU 5 CHỦNG TỰ -->
+            <div class="glass rounded-3xl p-8 border-l-4 border-cyan-500">
+                <h2 class="font-header text-lg font-bold text-white mb-6 uppercase tracking-widest">Phác đồ 5 Chủng Tự & Hành động thực tế</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                    <div class="p-4 bg-black/40 rounded-xl border border-white/5 hover:border-cyan-500/50 cursor-help group">
+                        <p class="text-xl font-black text-white group-hover:text-cyan-400">AUM</p>
+                        <p class="text-[9px] text-cyan-500 font-bold">ĐỊA - KHUNG</p>
+                        <p class="text-[10px] text-slate-500 mt-2">Hành động: Ăn uống thanh sạch, làm việc tử tế để gia cố khung gầm vật chất.</p>
                     </div>
-                    <div class="p-4 bg-black/40 rounded-xl border border-slate-800">
-                        <p class="text-xs text-slate-500 mb-1 uppercase font-bold">Phần mềm điều khiển</p>
-                        <p id="diag-software" class="text-sm font-semibold">Đang phân tích...</p>
+                    <div class="p-4 bg-black/40 rounded-xl border border-white/5 hover:border-cyan-500/50 cursor-help group">
+                        <p class="text-xl font-black text-white group-hover:text-cyan-400">HUM</p>
+                        <p class="text-[9px] text-cyan-500 font-bold">THỦY - DẦU</p>
+                        <p class="text-[10px] text-slate-500 mt-2">Hành động: Tập buông xả, không nhắc chuyện cũ để lọc sạch dầu nhớt cảm xúc.</p>
                     </div>
-                    <div class="p-4 bg-black/40 rounded-xl border border-slate-800">
-                        <p class="text-xs text-slate-500 mb-1 uppercase font-bold">Nhiên liệu vận hành</p>
-                        <p id="diag-fuel" class="text-sm font-semibold">Đang phân tích...</p>
+                    <div class="p-4 bg-black/40 rounded-xl border border-white/5 hover:border-cyan-500/50 cursor-help group">
+                        <p class="text-xl font-black text-white group-hover:text-cyan-400">TRAM</p>
+                        <p class="text-[9px] text-cyan-500 font-bold">HỎA - NHIỆT</p>
+                        <p class="text-[10px] text-slate-500 mt-2">Hành động: Ngừng tranh cãi khi nóng giận để tránh cháy nổ động cơ tâm lý.</p>
+                    </div>
+                    <div class="p-4 bg-black/40 rounded-xl border border-white/5 hover:border-cyan-500/50 cursor-help group">
+                        <p class="text-xl font-black text-white group-hover:text-cyan-400">HRIH</p>
+                        <p class="text-[9px] text-cyan-500 font-bold">PHONG - GIÓ</p>
+                        <p class="text-[10px] text-slate-500 mt-2">Hành động: Tập quan sát hơi thở và mở lòng giúp người để điều hướng lái.</p>
+                    </div>
+                    <div class="p-4 bg-black/40 rounded-xl border border-white/5 hover:border-cyan-500/50 cursor-help group">
+                        <p class="text-xl font-black text-white group-hover:text-cyan-400">AH</p>
+                        <p class="text-[9px] text-cyan-500 font-bold">KHÔNG - ĐIỆN</p>
+                        <p class="text-[10px] text-slate-500 mt-2">Hành động: Thiền định tĩnh lặng để kết nối nguồn điện trí tuệ vô tận.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT: DASHBOARD & AI CHAT -->
+        <!-- RIGHT: PHÂN LOẠI & CHẨN ĐOÁN -->
         <div class="lg:col-span-4 space-y-6">
             
-            <!-- CHỈ SỐ SỐNG CÒN -->
-            <div class="glass rounded-3xl p-6 text-center">
-                <div class="relative inline-block mb-4">
-                    <canvas id="mainRadar" width="250" height="250"></canvas>
-                </div>
-                <div class="space-y-2">
-                    <h3 id="vehicle-status" class="font-header font-bold text-xl">KIỂM TRA...</h3>
-                    <div class="flex justify-center items-baseline gap-1">
-                        <span id="safety-score" class="text-6xl font-black text-cyan-400 font-header">0</span>
-                        <span class="text-cyan-400 font-bold">%</span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest">Độ tin cậy của phương tiện khi vượt bão</p>
-                </div>
-            </div>
-
-            <!-- AI CỐ VẤN TÂM THỨC (CHAT) -->
-            <div class="glass rounded-3xl flex flex-col h-[550px] overflow-hidden border border-slate-800 shadow-2xl">
-                <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-cyan-500 status-pulse"></div>
-                        <span class="font-header text-xs font-bold tracking-widest">CỐ VẤN AI (LÃO GIÀ)</span>
-                    </div>
-                    <span class="text-[9px] text-slate-500 font-mono">DỮ LIỆU ĐÃ NẠP</span>
+            <!-- KẾT QUẢ LOẠI XE -->
+            <div class="glass rounded-3xl p-8 text-center vehicle-card">
+                <div id="v-icon" class="text-7xl mb-4 transition-all duration-700">🚲</div>
+                <h3 id="v-type" class="font-header font-bold text-2xl text-white mb-2">ĐANG PHÂN TÍCH...</h3>
+                <div class="flex justify-center items-baseline gap-1 mb-6">
+                    <span id="score-val" class="text-7xl font-black text-cyan-400 font-header">0</span>
+                    <span class="text-cyan-400 font-bold">%</span>
                 </div>
                 
-                <!-- Chat Window -->
-                <div id="chat-history" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm scroll-hidden bg-black/10">
-                    <div class="bg-cyan-900/20 border border-cyan-800/50 p-3 rounded-2xl text-slate-300">
-                        Chào bạn. Tôi là AI được nạp toàn bộ tri thức từ **Lão Già Nguyên Chính**. <br><br>
-                        Bất kể bạn là ai, trí thức hay dân lao động, hãy hỏi tôi bất cứ điều gì về việc: **Sửa xe (thân tâm), dọn rác (nghiệp) hay chuẩn bị cho biến cố lớn**. Tôi sẽ trả lời bằng ngôn ngữ dễ hiểu nhất.
+                <div class="space-y-4 mb-8">
+                    <div class="w-full bg-slate-800 rounded-full h-1">
+                        <div id="score-bar" class="bg-cyan-500 h-1 rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
+                    <p id="v-desc" class="text-xs text-slate-400 italic leading-relaxed">Vui lòng điều chỉnh các thông số để bắt đầu kiểm định.</p>
                 </div>
 
-                <!-- Input -->
-                <div class="p-4 bg-slate-900/80 border-t border-slate-800">
-                    <div class="flex gap-2">
-                        <input type="text" id="user-msg" 
-                            class="flex-1 bg-black border border-slate-700 rounded-xl px-4 py-2 text-white text-sm focus:border-cyan-500 outline-none" 
-                            placeholder="Ví dụ: Làm sao để hết sợ?"
-                            onkeypress="if(event.key==='Enter') sendQuestion()">
-                        <button onclick="sendQuestion()" class="bg-white hover:bg-cyan-400 text-black font-bold px-4 py-2 rounded-xl transition-all duration-300">
-                            HỎI
-                        </button>
+                <div class="h-[200px] flex justify-center mb-6">
+                    <canvas id="radarChart"></canvas>
+                </div>
+
+                <button onclick="deepAnalyze()" class="w-full py-4 bg-white text-black font-black text-sm rounded-2xl hover:bg-cyan-400 transition-all uppercase tracking-widest shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                    Phân tích chuyên sâu ✨
+                </button>
+                <div id="ai-loading" class="hidden text-[10px] text-cyan-500 mt-4 font-mono animate-pulse">>>> ĐANG TRUY VẤN DỮ LIỆU VŨ TRỤ...</div>
+            </div>
+
+            <!-- AI CHAT CỐ VẤN -->
+            <div class="glass rounded-3xl flex flex-col h-[400px] overflow-hidden border border-slate-800 shadow-2xl">
+                <div class="p-4 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-cyan-400 tracking-widest">HỎI CHUYÊN GIA VŨ TRỤ</span>
+                </div>
+                <div id="chat-history" class="flex-1 overflow-y-auto p-4 space-y-4 text-xs scroll-hidden bg-black/20">
+                    <div class="bg-cyan-900/10 border border-cyan-800/30 p-3 rounded-xl text-slate-300 italic">
+                        Hãy hỏi tôi về cách khắc phục các lỗi hệ thống của bạn.
                     </div>
-                    <div id="ai-loading" class="hidden text-[10px] text-cyan-500 mt-2 italic font-mono animate-pulse">>>> Đang truy vấn thư viện A-Lại-Da...</div>
+                </div>
+                <div class="p-3 bg-slate-900/80 flex gap-2">
+                    <input type="text" id="user-msg" class="flex-1 bg-black border border-slate-700 rounded-xl px-4 py-2 text-white text-xs outline-none focus:border-cyan-500" placeholder="Làm sao để dọn rác?" onkeypress="if(event.key==='Enter') sendChat()">
+                    <button onclick="sendChat()" class="bg-cyan-500 text-black font-bold px-3 rounded-xl text-[10px]">GỬI</button>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- MODAL KẾT QUẢ AI -->
+    <div id="ai-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+        <div class="glass max-w-2xl w-full p-8 rounded-3xl border border-cyan-500/30 shadow-[0_0_50px_rgba(0,242,255,0.1)]">
+            <h2 class="font-header text-xl font-bold text-white mb-4 border-b border-white/10 pb-4">BẢN TIN CỐ VẤN VŨ TRỤ</h2>
+            <div id="ai-result-content" class="text-sm text-slate-300 leading-relaxed max-h-[60vh] overflow-y-auto pr-4 scroll-hidden mb-6"></div>
+            <button onclick="closeModal()" class="w-full py-3 bg-cyan-600/20 text-cyan-400 font-bold rounded-xl border border-cyan-500/30 hover:bg-cyan-500 hover:text-white transition-all">ĐÃ HIỂU, TIẾP TỤC SỬA XE</button>
+        </div>
+    </div>
+
     <script>
-        const apiKey = "AIzaSyDjRtjCOSMeailBS1xQa3xn5Wwm-EEESUY"; // API Key của bạn
+        const apiKey = "AIzaSyDjRtjCOSMeailBS1xQa3xn5Wwm-EEESUY"; // <--- DÁN API KEY CỦA BẠN VÀO ĐÂY
 
-        // --- DANH MỤC DÂN DÃ ---
-        const trashData = [
-            { id: 0, n: "Thích hưởng thụ (Tham)", d: "Càng thích sướng, xe càng nặng, tốn xăng." },
-            { id: 1, n: "Mê đắm sắc dục", d: "Rò rỉ năng lượng cốt lõi của máy." },
-            { id: 2, n: "Hay nóng giận (Sân)", d: "Nhiệt độ máy quá cao, dễ cháy nổ." },
-            { id: 3, n: "U mê, thiếu hiểu biết", d: "Lái xe trong sương mù, không đèn pha." },
-            { id: 4, n: "Tự cao, coi thường người", d: "Bánh xe bị lệch, dễ lật xe." },
-            { id: 5, n: "Hay nghi ngờ vớ vẩn", d: "Hệ thống phanh bị kẹt, không dám tiến." },
-            { id: 6, n: "Cố chấp quan điểm sai", d: "Vô lăng bị khóa cứng, không rẽ được." },
-            { id: 7, n: "Suy nghĩ điên đảo", d: "Chập mạch hệ thống điện tử." },
-            { id: 8, n: "Ganh tị, so đo", d: "Rác thải làm tắc đường ống dẫn dầu." },
-            { id: 9, n: "Thích soi mói người khác", d: "Camera chỉ hướng ra ngoài, không soi lại máy mình." },
-            { id: 10, n: "Lo âu, đau buồn quá mức", d: "Rỉ sét khung gầm phương tiện." },
-            { id: 11, n: "Chấp trước quá khứ", d: "Kéo theo một rơ-moóc rác nặng nề." }
-        ];
+        const trashData = ["Thích hưởng thụ (Tham)", "Đam mê sắc dục", "Sân hận/Nóng nảy", "Vô minh/U mê", "Ngã mạn/Tự cao", "Hay nghi ngờ", "Cố chấp quan điểm", "Rối loạn suy nghĩ", "Tự ti/Yếu đuối", "Ganh tị/So đo", "Hay soi mói", "Nghĩ bậy (Tà niệm)", "Lo âu/Phiền não", "Đau thương bi lụy", "Tiếc nuối quá khứ", "Chấp trước", "Vọng tưởng", "Dối trá"];
+        const partsData = ["Tình thương thật", "Đạo hạnh/Tử tế", "Nhẫn nhục", "Dịu dàng (Diệu hòa)", "Vui vẻ thanh khiết", "Đức tin trọn vẹn", "Tinh tấn/Cố gắng", "Sức mạnh vô úy", "Lời nguyện sâu", "Sáng suốt/Chân tri", "Thanh thoát", "Định lực/Yên tĩnh"];
 
-        const partsData = [
-            { id: 0, n: "Thương người thật lòng", d: "Nhớt xịn, làm mát máy cực nhanh." },
-            { id: 1, n: "Sống tử tế (Đạo hạnh)", d: "Lớp sơn bảo vệ xe khỏi tia xạ." },
-            { id: 2, n: "Kiên nhẫn, chịu khó", d: "Hệ thống giảm xóc cực êm." },
-            { id: 3, n: "Vui vẻ tích cực", d: "Đèn led siêu sáng chiếu rọi đường." },
-            { id: 4, n: "Tin vào điều tốt đẹp", d: "Bản đồ định vị GPS chuẩn xác." },
-            { id: 5, n: "Cố gắng không ngừng", d: "Động cơ tăng áp mạnh mẽ." },
-            { id: 6, n: "Không sợ hãi (Vô úy)", d: "Vỏ xe chống đạn, bất chấp va chạm." },
-            { id: 7, n: "Có mục đích sống cao đẹp", d: "La bàn hướng về nguồn cội." },
-            { id: 8, n: "Sáng suốt (Chân tri)", d: "Bộ vi xử lý AI trung tâm đời mới." },
-            { id: 9, n: "Sống nhẹ nhàng, thanh thoát", d: "Khí động học, xe lướt như bay." },
-            { id: 10, n: "Tâm đứng yên (Định)", d: "Trục xe cân bằng tuyệt đối." },
-            { id: 11, n: "Giúp đời không tính toán", d: "Trạm sạc năng lượng mặt trời vô tận." }
-        ];
-
-        // --- KHỞI TẠO GIAO DIỆN ---
+        let radar;
         function init() {
             const tList = document.getElementById('trash-list');
             const pList = document.getElementById('parts-list');
-
-            trashData.forEach(item => {
-                tList.innerHTML += createItem(item, 'trash', 'red');
+            
+            trashData.forEach((n, i) => {
+                tList.innerHTML += createSlider(n, i, 'red', 'trash');
             });
-            partsData.forEach(item => {
-                pList.innerHTML += createItem(item, 'parts', 'green');
+            partsData.forEach((n, i) => {
+                pList.innerHTML += createSlider(n, i, 'green', 'parts');
             });
 
             initRadar();
             updateAll();
+            
+            if(apiKey) {
+                const status = document.getElementById('connection-status');
+                status.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500 status-pulse"></div> HỆ THỐNG TRỰC TUYẾN`;
+                status.className = "text-[10px] font-bold text-green-400 flex items-center gap-2 italic";
+            }
         }
 
-        function createItem(item, group, color) {
-            const cHex = color === 'red' ? '#ff4d4d' : '#00ff88';
+        function createSlider(name, id, color, group) {
+            const c = color === 'red' ? 'red-500' : 'green-400';
             return `
                 <div class="group">
-                    <div class="flex justify-between items-end mb-2">
-                        <div class="max-w-[80%]">
-                            <h4 class="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors">${item.n}</h4>
-                            <p class="text-[10px] text-slate-500 italic">${item.d}</p>
-                        </div>
-                        <span id="val-${group}-${item.id}" class="text-xs font-mono font-bold" style="color:${cHex}">50%</span>
+                    <div class="flex justify-between text-[11px] mb-1">
+                        <span class="text-slate-400 font-medium group-hover:text-white transition-colors">${name}</span>
+                        <span id="v-${group}-${id}" class="text-${c} font-mono font-bold">50%</span>
                     </div>
-                    <input type="range" min="0" max="100" value="50" class="slider-custom" 
-                        id="in-${group}-${item.id}" style="accent-color:${cHex}" oninput="updateAll()">
+                    <input type="range" id="in-${group}-${id}" min="0" max="100" value="50" 
+                           class="slider-custom" oninput="updateAll()">
                 </div>
             `;
         }
 
-        let radar;
         function initRadar() {
-            const ctx = document.getElementById('mainRadar').getContext('2d');
+            const ctx = document.getElementById('radarChart').getContext('2d');
             radar = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['HAM MUỐN', 'NÓNG GIẬN', 'U MÊ', 'CÁI TÔI', 'ĐỊNH LỰC', 'TÌNH THƯƠNG', 'TRÍ TUỆ'],
+                    labels: ['THAM', 'SÂN', 'SI', 'TÔI', 'ĐỊNH', 'THƯƠNG', 'TRÍ'],
                     datasets: [{
                         data: [50, 50, 50, 50, 50, 50, 50],
-                        backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                        backgroundColor: 'rgba(0, 242, 255, 0.05)',
                         borderColor: '#00f2ff',
-                        borderWidth: 2,
-                        pointRadius: 3,
-                        pointBackgroundColor: '#fff'
+                        borderWidth: 1,
+                        pointRadius: 0
                     }]
                 },
                 options: {
-                    scales: { r: { grid: {color: 'rgba(255,255,255,0.05)'}, angleLines: {color: 'rgba(255,255,255,0.1)'}, ticks: {display: false}, pointLabels: {color: '#64748b', font: {size: 8, weight: 'bold'}} } },
+                    scales: { r: { grid: {color: 'rgba(255,255,255,0.05)'}, angleLines: {display: false}, ticks: {display: false}, pointLabels: {color: '#475569', font: {size: 8}} } },
                     plugins: { legend: {display: false} }
                 }
             });
         }
 
         function updateAll() {
-            let totalTrash = 0;
-            trashData.forEach(t => {
-                const v = parseInt(document.getElementById(`in-trash-${t.id}`).value);
-                document.getElementById(`val-trash-${t.id}`).innerText = v + '%';
-                totalTrash += v;
+            let trashSum = 0; trashData.forEach((_, i) => {
+                const v = parseInt(document.getElementById(`in-trash-${i}`).value);
+                document.getElementById(`v-trash-${i}`).innerText = v + '%';
+                trashSum += v;
             });
 
-            let totalGood = 0;
-            partsData.forEach(p => {
-                const v = parseInt(document.getElementById(`in-parts-${p.id}`).value);
-                document.getElementById(`val-parts-${p.id}`).innerText = v + '%';
-                totalGood += v;
+            let partsSum = 0; partsData.forEach((_, i) => {
+                const v = parseInt(document.getElementById(`in-parts-${i}`).value);
+                document.getElementById(`v-parts-${i}`).innerText = v + '%';
+                partsSum += v;
             });
 
-            const avgTrash = totalTrash / trashData.length;
-            const avgGood = totalGood / partsData.length;
+            const tAvg = trashSum / 18;
+            const pAvg = partsSum / 12;
 
-            // SAFETY SCORE
-            let score = Math.round((avgGood * 1.8) - (avgTrash * 0.9));
+            // Tính điểm an toàn (Safety Score)
+            let score = Math.round((pAvg * 2.2) - (tAvg * 1.2));
             score = Math.max(0, Math.min(100, score));
-            document.getElementById('safety-score').innerText = score;
 
-            const statusTxt = document.getElementById('vehicle-status');
-            const chassis = document.getElementById('diag-chassis');
-            const software = document.getElementById('diag-software');
-            const fuel = document.getElementById('diag-fuel');
+            document.getElementById('score-val').innerText = score;
+            document.getElementById('score-bar').style.width = score + '%';
 
-            if(score < 35) {
-                statusTxt.innerText = "XE SẮP RÃ MÁY"; statusTxt.style.color = "#ff4d4d";
-                chassis.innerText = "Khung gầm rỉ sét nghiêm trọng. Dễ sụp đổ khi gặp áp lực.";
-                software.innerText = "Lỗi hệ thống toàn diện. Người lái mất kiểm soát.";
-                fuel.innerText = "Chứa đầy tạp chất độc hại. Động cơ sắp ngừng.";
-            } else if(score < 75) {
-                statusTxt.innerText = "ĐANG TRÙNG TU"; statusTxt.style.color = "#ffcc00";
-                chassis.innerText = "Khung gầm tạm ổn nhưng cần gia cố thêm tình thương.";
-                software.innerText = "Cần cập nhật phiên bản Tỉnh Thức ngay lập tức.";
-                fuel.innerText = "Nhiên liệu bắt đầu sạch, nhưng rác vẫn còn tồn đọng.";
+            // Phân loại phương tiện
+            const icon = document.getElementById('v-icon');
+            const type = document.getElementById('v-type');
+            const desc = document.getElementById('v-desc');
+
+            if(score < 15) {
+                icon.innerText = "🚲"; type.innerText = "XE ĐẠP RỈ SÉT";
+                desc.innerText = "Cực kỳ nguy kịch. Khung gầm vật chất mục nát, rác thải quá tải. Không thể chịu nổi một cơn gió nhẹ.";
+            } else if(score < 35) {
+                icon.innerText = "🚗"; type.innerText = "XE CŨ NÁT HỎNG PHANH";
+                desc.innerText = "Phương tiện cũ kỹ, lỗi hệ thống điều khiển nghiêm trọng. Dễ gây tai nạn cho mình và người khác.";
+            } else if(score < 60) {
+                icon.innerText = "🚘"; type.innerText = "XE GIA ĐÌNH CƠ BẢN";
+                desc.innerText = "Vận hành ổn định trong điều kiện bình thường. Cần nâng cấp hệ thống giảm xóc để chuẩn bị cho bão lớn.";
+            } else if(score < 85) {
+                icon.innerText = "🏎️"; type.innerText = "SIÊU XE THỂ THAO";
+                desc.innerText = "Tốc độ nhanh, khung gầm chắc chắn. Bạn đã làm chủ được nhiều tầng ý thức.";
             } else {
-                statusTxt.innerText = "SIÊU PHI THUYỀN"; statusTxt.style.color = "#00ff88";
-                chassis.innerText = "Kết cấu kim cương bền vững. Bất chấp mọi biến cố.";
-                software.innerText = "Hệ thống AI Tự Nhiên đã kích hoạt. Lái xe tự động.";
-                fuel.innerText = "Năng lượng ánh sáng thuần khiết. Vô tận.";
+                icon.innerText = "🚀"; type.innerText = "PHI THUYỀN ÁNH SÁNG";
+                desc.innerText = "Phương tiện tối tân. Sẵn sàng bay xuyên qua các tầng không gian vũ trụ mà không hề hấn.";
             }
 
-            // Update Radar
+            // Radar
             radar.data.datasets[0].data = [
                 parseInt(document.getElementById('in-trash-0').value),
                 parseInt(document.getElementById('in-trash-2').value),
                 parseInt(document.getElementById('in-trash-3').value),
                 parseInt(document.getElementById('in-trash-4').value),
-                parseInt(document.getElementById('in-parts-10').value),
+                parseInt(document.getElementById('in-parts-11').value),
                 parseInt(document.getElementById('in-parts-0').value),
-                parseInt(document.getElementById('in-parts-8').value)
+                parseInt(document.getElementById('in-parts-9').value)
             ];
             radar.update();
         }
 
-        // --- AI CHAT SYSTEM ---
-        async function sendQuestion() {
-            const input = document.getElementById('user-msg');
-            const history = document.getElementById('chat-history');
+        // GỌI AI PHÂN TÍCH CHUYÊN SÂU
+        async function deepAnalyze() {
+            if(!apiKey) return alert("Vui lòng dán API Key vào mã nguồn để sử dụng tính năng này!");
+            
             const loader = document.getElementById('ai-loading');
-            const q = input.value.trim();
-            if(!q) return;
-
-            history.innerHTML += `<div class="bg-slate-800 p-3 rounded-2xl ml-8 text-right text-white border border-slate-700">${q}</div>`;
-            input.value = "";
-            history.scrollTop = history.scrollHeight;
             loader.classList.remove('hidden');
 
-            const knowledgeBase = `
-                Bạn là Cố Vấn Tâm Thức - Lão Già Nguyên Chính. 
-                Nhiệm vụ: Giải đáp thắc mắc về việc "Sửa xe" (nâng cấp tâm thức) dựa trên các tài liệu:
-                - "6 tầng nhận thức": Sự tiến hóa của cái hiểu.
-                - "Sắm xe mới": Kỹ thuật rời bỏ thân xác cũ để vào thân xác ánh sáng (không phải chết là hết).
-                - "Giải phẫu sinh tử": Hiểu về cấu tạo của Ý thức và Nghiệp (Bộ nhớ lái xe).
-                - "Bão mặt trời": Sự thanh lọc năng lượng của Vũ trụ.
+            const context = `
+                Đóng vai CHUYÊN GIA VŨ TRỤ.
+                Phân tích chỉ số phương tiện tâm thức của người dùng:
+                - Loại xe: ${document.getElementById('v-type').innerText}
+                - Điểm an toàn: ${document.getElementById('score-val').innerText}%
                 
-                PHONG CÁCH TRẢ LỜI:
-                - Dùng ngôn ngữ đời thường, dân dã, dễ hiểu cho cả người bình dân lẫn trí thức.
-                - Ví dụ: Thay vì nói "Nghiệp lực", hãy nói "Dữ liệu xấu trong ổ cứng". Thay vì "Giải thoát", hãy nói "Đổi xe mới đời cao".
-                - Luôn tập trung vào giải pháp thực tế: Buông bỏ rác (Trả lại) và Nạp năng lượng sạch (Dâng hiến).
-                - Trả lời ngắn gọn, súc tích, đậm chất kỹ thuật tâm linh.
-                - Dùng Markdown để làm nổi bật các ý chính.
+                Yêu cầu:
+                1. Dùng ngôn ngữ đời thường, dân dã để giải thích tình trạng "Sửa xe".
+                2. Chỉ ra 1 "Lỗi hệ thống" (Rác) nặng nhất dựa trên chỉ số thấp.
+                3. Đưa ra 1 hành động thực tế kết hợp với 1 trong 5 chủng tự (AUM, HUM, TRAM, HRIH, AH) để nâng cấp.
+                4. Cảnh báo về "Bão mặt trời" sắp tới ảnh hưởng thế nào đến loại xe này.
+                Ngắn gọn, sâu sắc, không dùng từ tôn giáo.
             `;
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ role: "user", parts: [{ text: knowledgeBase + "\n\nNgười dùng hỏi: " + q }] }]
-                    })
-                });
-
-                const data = await response.json();
-                const reply = data.candidates[0].content.parts[0].text;
-                
-                loader.classList.add('hidden');
-                history.innerHTML += `
-                    <div class="bg-cyan-900/20 border border-cyan-800/50 p-4 rounded-2xl mr-8 text-slate-200 shadow-lg">
-                        ${marked.parse(reply)}
-                    </div>
-                `;
-                history.scrollTop = history.scrollHeight;
+                const response = await callGemini(context);
+                document.getElementById('ai-result-content').innerHTML = marked.parse(response);
+                document.getElementById('ai-modal').classList.remove('hidden');
             } catch (error) {
+                alert("Kết nối vũ trụ bị gián đoạn. Thử lại sau!");
+            } finally {
                 loader.classList.add('hidden');
-                history.innerHTML += `<div class="text-red-400 text-[10px] italic">Lỗi kết nối với Trạm trung tâm. Vui lòng thử lại.</div>`;
             }
         }
+
+        async function sendChat() {
+            const input = document.getElementById('user-msg');
+            const history = document.getElementById('chat-history');
+            const q = input.value.trim();
+            if(!q || !apiKey) return;
+
+            history.innerHTML += `<div class="text-right text-cyan-400 font-bold">> ${q}</div>`;
+            input.value = "";
+            history.scrollTop = history.scrollHeight;
+
+            const response = await callGemini(`Đóng vai Chuyên Gia Vũ Trụ. Trả lời câu hỏi sau bằng ngôn ngữ bình dân, dựa trên tri thức Giải Phẫu Sinh Tử và Bát Chánh Đạo: ${q}`);
+            history.innerHTML += `<div class="bg-white/5 p-3 rounded-xl text-slate-300 border border-white/5">${marked.parse(response)}</div>`;
+            history.scrollTop = history.scrollHeight;
+        }
+
+        async function callGemini(prompt) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
+            const r = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await r.json();
+            return data.candidates[0].content.parts[0].text;
+        }
+
+        function closeModal() { document.getElementById('ai-modal').classList.add('hidden'); }
 
         window.onload = init;
     </script>
