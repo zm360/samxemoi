@@ -34,6 +34,9 @@
         
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .loading-pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     </style>
 </head>
 <body class="min-h-screen">
@@ -91,7 +94,7 @@
                 </div>
 
                 <button onclick="openUpgradePortal()" class="w-full py-5 bg-gradient-to-r from-cyan-600 to-blue-700 text-white font-black text-sm rounded-2xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest shadow-2xl">
-                    Phân tích chuyên sâu & Đại tu ✨
+                    PHÂN TÍCH CHUYÊN SÂU ✨
                 </button>
             </div>
         </div>
@@ -124,16 +127,16 @@
                     <div class="space-y-8">
                         <div>
                             <h4 class="text-white font-bold mb-4 flex items-center gap-2">
-                                <span class="w-2 h-6 bg-cyan-500"></span> 1. KHÁI NIỆM & TRẠNG THÁI
+                                <span class="w-2 h-6 bg-cyan-500"></span> 1. KHÁI NIỆM & GIẢI THÍCH ✨
                             </h4>
                             <div id="diagnostics-txt" class="text-slate-400 text-sm leading-relaxed space-y-4">
-                                <!-- Nội dung giải thích từ AI hoặc Logic -->
+                                <div class="loading-pulse bg-slate-800 h-20 rounded-lg"></div>
                             </div>
                         </div>
 
                         <div>
                             <h4 class="text-white font-bold mb-4 flex items-center gap-2">
-                                <span class="w-2 h-6 bg-red-500"></span> 2. LỖI HỆ THỐNG CẦN XỬ LÝ NGAY
+                                <span class="w-2 h-6 bg-red-500"></span> 2. LỖI HỆ THỐNG (RÁC NGHIỆP)
                             </h4>
                             <div id="error-list" class="grid grid-cols-1 gap-3"></div>
                         </div>
@@ -143,7 +146,7 @@
                     <div class="space-y-8">
                         <div>
                             <h4 class="text-white font-bold mb-4 flex items-center gap-2">
-                                <span class="w-2 h-6 bg-green-500"></span> 3. LỘ TRÌNH TĂNG TỐC TIẾN HÓA
+                                <span class="w-2 h-6 bg-green-500"></span> 3. LỘ TRÌNH SỬA CHỮA (5 CHỦNG TỰ)
                             </h4>
                             <div id="upgrade-steps" class="space-y-4">
                                 <!-- Chủng tự & Hành động -->
@@ -153,19 +156,27 @@
                         <!-- PHẦN CHUYÊN GIA VŨ TRỤ (AI) -->
                         <div class="p-6 bg-cyan-900/10 border border-cyan-500/20 rounded-2xl relative">
                             <div class="absolute -top-3 right-6 bg-cyan-500 text-black text-[9px] font-black px-2 py-1 rounded">TRÍ TUỆ VŨ TRỤ</div>
-                            <h5 class="text-cyan-400 text-xs font-bold mb-3 uppercase italic">Lời khuyên từ Chuyên gia:</h5>
+                            <h5 class="text-cyan-400 text-xs font-bold mb-3 uppercase italic">Chẩn đoán từ Gemini AI:</h5>
                             <div id="ai-deep-msg" class="text-slate-300 text-xs italic leading-loose">
                                 Đang tổng hợp dữ liệu từ các tầng ý thức...
                             </div>
+                            <div class="mt-4 flex gap-2">
+                                <input type="text" id="user-ask" placeholder="Hỏi thêm chuyên gia về cách sửa lỗi..." class="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-[10px] focus:outline-none focus:border-cyan-500">
+                                <button onclick="askExpert()" class="bg-cyan-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold">HỎI ✨</button>
+                            </div>
                         </div>
                     </div>
+                </div>
+                
+                <div class="mt-12 text-center">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest italic">Kết dùng 5 chủng tự để tăng tốc tiến hóa tâm thức</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const apiKey = "AIzaSyDjRtjCOSMeailBS1xQa3xn5Wwm-EEESUY"; // Nhập API Key của bạn
+        const apiKey = "AIzaSyDjRtjCOSMeailBS1xQa3xn5Wwm-EEESUY"; // API Key sẽ được môi trường cung cấp
 
         const trashData = ["Hưởng thụ (Tham)", "Ái dục/Mê đắm", "Sân hận/Nóng nảy", "Vô minh/U mê", "Ngã mạn/Tự cao", "Nghi ngờ", "Cố chấp", "Rối loạn tâm trí", "Tự ti/Yếu đuối", "Ganh tị/So đo", "Soi mói", "Tà niệm", "Lo âu/Phiền não", "Đau thương bi lụy", "Tiếc nuối", "Chấp trước", "Vọng tưởng", "Dối trá"];
         const partsData = ["Tình thương thật", "Đạo hạnh/Tử tế", "Nhẫn nhục", "Dịu dàng", "Vui vẻ thanh khiết", "Đức tin trọn vẹn", "Tinh tấn", "Sức mạnh vô úy", "Lời nguyện sâu", "Sáng suốt/Chân tri", "Thanh thoát", "Định lực/Yên tĩnh"];
@@ -182,11 +193,13 @@
             initRadar();
             updateStats();
             
-            if(apiKey) {
-                const status = document.getElementById('conn-status');
-                status.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> VỆ TINH AI TRỰC TUYẾN`;
-                status.classList.replace('text-slate-500', 'text-green-400');
-            }
+            checkAIStatus();
+        }
+
+        function checkAIStatus() {
+            const status = document.getElementById('conn-status');
+            status.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> VỆ TINH GEMINI TRỰC TUYẾN ✨`;
+            status.classList.replace('text-slate-500', 'text-green-400');
         }
 
         function createSlider(name, id, type) {
@@ -243,6 +256,25 @@
             radarChart.update();
         }
 
+        async function geminiCall(prompt, systemMsg = "") {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemMsg }] }
+            };
+
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const result = await response.json();
+                    return result.candidates?.[0]?.content?.parts?.[0]?.text;
+                } catch (e) {
+                    await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+                }
+            }
+            return "Xin lỗi, vệ tinh đang gặp sự cố nhiễu loạn từ bão mặt trời. Vui lòng thử lại sau.";
+        }
+
         async function openUpgradePortal() {
             const portal = document.getElementById('portal');
             const score = document.getElementById('score-val').innerText;
@@ -250,55 +282,61 @@
             portal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
 
-            // 1. Phân tích lỗi nặng nhất
+            // 1. Phân tích rác
             const errors = [];
             trashData.forEach((name, i) => {
                 const v = parseInt(document.getElementById(`in-trash-${i}`).value);
                 if(v > 70) errors.push({name, v});
             });
             const errorDiv = document.getElementById('error-list');
-            errorDiv.innerHTML = errors.length ? "" : "<p class='text-green-500 text-xs'>Không phát hiện lỗi phần cứng nghiêm trọng.</p>";
+            errorDiv.innerHTML = "";
             errors.slice(0, 3).forEach(e => {
                 errorDiv.innerHTML += `
                     <div class="flex justify-between items-center p-3 bg-red-900/10 border border-red-500/20 rounded-xl">
                         <span class="text-xs text-red-200 font-bold">${e.name}</span>
-                        <span class="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded">Rác mức độ ${e.v}%</span>
+                        <span class="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded">Lỗi mức độ ${e.v}%</span>
                     </div>
                 `;
             });
 
-            // 2. Chủng tự & Tiến hóa
+            // 2. Chủng tự căn bản
             const upgradeDiv = document.getElementById('upgrade-steps');
-            const vehicle = document.getElementById('v-type').innerText;
             upgradeDiv.innerHTML = `
-                ${createUpgradeStep("AUM", "Gia cố khung gầm vật chất. Thực hiện: Ăn sạch, nói lời thật, lao động tử tế.")}
-                ${createUpgradeStep("HUM", "Lọc sạch dầu nhớt cảm xúc. Thực hiện: Buông xả ký ức, tha thứ lỗi lầm.")}
-                ${createUpgradeStep("TRAM", "Làm mát động cơ nóng nảy. Thực hiện: Ngừng tranh cãi, quan sát cơn giận.")}
-                ${createUpgradeStep("HRIH", "Chỉnh hướng lái tình thương. Thực hiện: Mở lòng giúp người không vụ lợi.")}
-                ${createUpgradeStep("AH", "Kết nối nguồn điện trí tuệ. Thực hiện: Thiền định tĩnh lặng 15p mỗi ngày.")}
+                ${createUpgradeStep("AUM", "Sửa khung gầm: Ăn uống sạch, giữ thân ngay ngắn.")}
+                ${createUpgradeStep("HUM", "Lọc dầu cảm xúc: Thực tập buông xả các dính mắc.")}
+                ${createUpgradeStep("TRAM", "Tản nhiệt sân hận: Nhìn cơn giận như một làn khói.")}
+                ${createUpgradeStep("HRIH", "Chỉnh lái tình thương: Tập thương mình và thương người.")}
+                ${createUpgradeStep("AH", "Nạp năng lượng trí tuệ: Thiền định trong im lặng tuyệt cùng.")}
             `;
 
-            // 3. Khái niệm & Giải thích
-            document.getElementById('diagnostics-txt').innerHTML = `
-                <p>Theo <b>Chuyên Gia Vũ Trụ</b>, bạn đang sở hữu một <b>${vehicle}</b>. Đây không phải là phương tiện vật lý, mà là <b>Tần Số Dao Động</b> của ý thức bạn.</p>
-                <p><b>Vì sao cần 5 Chủng Tự?</b> Vì ý thức con người có 5 tầng dao động khác nhau: tầng bám thân, cảm xúc, phản xạ, trôi dạt và tan hợp. Một âm thanh không thể chỉnh được cả 5. 5 Chủng tự là "bộ đồ nghề" để bạn đồng bộ hóa toàn bộ phương tiện trước khi bước vào <b>Bão Mặt Trời</b>.</p>
-            `;
+            // 3. AI Phân tích chuyên sâu
+            const vehicle = document.getElementById('v-type').innerText;
+            const topTrash = errors.map(e => e.name).join(", ");
+            const prompt = `Phân tích trạng thái "phương tiện tâm thức" này: Loại xe ${vehicle}, điểm an toàn ${score}%. Các lỗi nặng nhất: ${topTrash}. Hãy giải thích khái niệm tại sao cần "đại tu" và đưa ra 1 lời khuyên thực hành cụ thể dựa trên 5 chủng tự (AUM HUM TRAM HRIH AH). Phong cách Lão Già Nguyên Chính, ẩn dụ sâu sắc, không tôn giáo.`;
+            const system = "Bạn là Chuyên Gia Vũ Trụ, một trí tuệ cổ xưa chuyên giúp con người nâng cấp phương tiện ý thức trước kỳ Bão Mặt Trời. Ngôn ngữ của bạn sắc bén, giàu hình ảnh và thực tế.";
 
-            // 4. Gọi AI tư vấn
-            if(apiKey) {
-                document.getElementById('ai-deep-msg').innerText = "Vệ tinh đang quét tầng ý thức sâu...";
-                const prompt = `Đóng vai Chuyên Gia Vũ Trụ. Phân tích loại xe ${vehicle}, điểm ${score}%. Đưa ra 1 hành động sửa xe thực tế dùng 5 chủng tự (AUM HUM TRAM HRIH AH). Ngôn ngữ bình dân.`;
-                try {
-                    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                    });
-                    const d = await r.json();
-                    document.getElementById('ai-deep-msg').innerHTML = marked.parse(d.candidates[0].content.parts[0].text);
-                } catch(e) {
-                    document.getElementById('ai-deep-msg').innerText = "Mất kết nối với chuyên gia vũ trụ. Hãy kiểm tra API Key.";
-                }
-            }
+            document.getElementById('diagnostics-txt').innerHTML = '<div class="loading-pulse bg-slate-800 h-20 rounded-lg"></div>';
+            document.getElementById('ai-deep-msg').innerText = "Đang quét dữ liệu nghiệp quả...";
+
+            const analysis = await geminiCall(prompt, system);
+            document.getElementById('diagnostics-txt').innerHTML = marked.parse(analysis || "Không thể kết nối vệ tinh.");
+            document.getElementById('ai-deep-msg').innerText = "Vệ tinh đã sẵn sàng phản hồi thêm.";
+        }
+
+        async function askExpert() {
+            const input = document.getElementById('user-ask');
+            const msg = input.value;
+            if(!msg) return;
+
+            const vehicle = document.getElementById('v-type').innerText;
+            document.getElementById('ai-deep-msg').innerText = "Đang giải mã tín hiệu...";
+            input.value = "";
+
+            const prompt = `Tôi đang sở hữu xe ${vehicle}. Câu hỏi của tôi là: ${msg}. Hãy trả lời ngắn gọn, tập trung vào kỹ thuật tu tập hoặc dùng 5 chủng tự để giải quyết vấn đề này.`;
+            const system = "Bạn là Chuyên Gia Vũ Trụ. Trả lời ngắn, sắc, đi thẳng vào vấn đề kỹ thuật tâm linh.";
+
+            const reply = await geminiCall(prompt, system);
+            document.getElementById('ai-deep-msg').innerHTML = marked.parse(reply);
         }
 
         function createUpgradeStep(mantra, desc) {
