@@ -3,358 +3,566 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trạm Dịch Vụ Tâm Thức | Chuyên Gia Vũ Trụ</title>
+    <title>Trạm Bảo Dưỡng Tâm Thức | Cosmic Service Station</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #00f2ff; --danger: #ff4d4d; --success: #00ff88; --bg-dark: #05070a; }
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-gold: #ffd700;
+            --neon-red: #ff3333;
+            --bg-deep: #050a14;
+            --glass-bg: rgba(16, 24, 39, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-deep);
             color: #e2e8f0;
-            background-image: radial-gradient(circle at 10% 20%, rgba(0, 242, 255, 0.05) 0%, transparent 40%);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.05) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 215, 0, 0.05) 0%, transparent 25%);
             overflow-x: hidden;
         }
-        .font-header { font-family: 'Space Grotesk', sans-serif; }
-        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .slider-custom { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 10px; background: #1e293b; outline: none; }
-        .slider-custom::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; cursor: pointer; background: white; border: 2px solid var(--primary); }
-        .scroll-hidden::-webkit-scrollbar { width: 4px; }
-        .scroll-hidden::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .font-mono { font-family: 'Roboto Mono', monospace; }
         
-        @keyframes scan-line { 0% { top: 0%; } 100% { top: 100%; } }
-        .scan-effect { position: relative; overflow: hidden; }
-        .scan-effect::after {
-            content: ""; position: absolute; width: 100%; height: 2px; background: var(--primary);
-            top: 0; left: 0; box-shadow: 0 0 15px var(--primary);
-            animation: scan-line 3s linear infinite; pointer-events: none;
+        /* Glassmorphism */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Scanline Animation */
+        .scan-line {
+            position: absolute; width: 100%; height: 2px; background: var(--neon-blue);
+            top: 0; left: 0; opacity: 0.5; animation: scan 3s linear infinite; pointer-events: none; z-index: 10;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+        @keyframes scan { 0% { top: 0%; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
+        /* Custom Sliders */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 6px; background: #1f2937; border-radius: 4px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #fff; cursor: pointer; margin-top: -5px; border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
         }
         
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .loading-pulse { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        /* Utility */
+        .text-glow { text-shadow: 0 0 10px currentColor; }
+        .hidden-scroll::-webkit-scrollbar { width: 4px; }
+        .hidden-scroll::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        
+        /* Loading Pulse */
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(0, 243, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); } }
+        .pulse-btn { animation: pulse-ring 2s infinite; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="relative min-h-screen">
 
-    <!-- Header -->
-    <header class="glass sticky top-0 z-50 border-b border-slate-800">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-cyan-500 rounded flex items-center justify-center text-black font-black text-xl shadow-[0_0_15px_rgba(0,242,255,0.5)]">Ω</div>
-                <div>
-                    <h1 class="font-header font-bold text-lg text-white uppercase tracking-tighter">Trạm Dịch Vụ Tâm Thức</h1>
-                    <p class="text-[9px] text-cyan-400 font-bold tracking-[0.2em]">CỐ VẤN: CHUYÊN GIA VŨ TRỤ</p>
-                </div>
-            </div>
-            <div id="conn-status" class="text-[10px] font-bold text-slate-500 flex items-center gap-2 italic">
-                <div class="w-2 h-2 rounded-full bg-slate-600"></div> CHƯA KẾT NỐI VỆ TINH AI
+    <!-- NAVIGATION / HUD -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-800 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-400 font-bold animate-pulse">Ω</div>
+            <div>
+                <h1 class="text-lg font-bold tracking-widest text-white uppercase">Trạm Bảo Dưỡng Tâm Thức</h1>
+                <p class="text-[10px] text-cyan-400 font-mono tracking-wider">HỆ ĐIỀU HÀNH: VŨ TRỤ 1.0</p>
             </div>
         </div>
-    </header>
+        <div class="flex items-center gap-4 text-xs font-bold font-mono">
+            <span id="ai-status" class="text-slate-500 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-slate-600"></span> AI OFFLINE
+            </span>
+            <div class="hidden md:flex gap-2">
+                <span class="px-2 py-1 bg-red-900/40 text-red-400 rounded border border-red-800">CẢNH BÁO: BÃO TỪ</span>
+                <span class="px-2 py-1 bg-green-900/40 text-green-400 rounded border border-green-800">NĂNG LƯỢNG: SẠCH</span>
+            </div>
+        </div>
+    </nav>
 
-    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- MAIN CONTENT -->
+    <div class="pt-24 pb-12 px-4 max-w-[1600px] mx-auto grid grid-cols-1 xl:grid-cols-12 gap-6">
         
-        <!-- TRÁI: DỮ LIỆU ĐẦU VÀO -->
-        <div class="lg:col-span-8 space-y-6">
-            <div class="glass rounded-3xl p-8">
-                <div class="flex justify-between items-center mb-8 border-b border-white/5 pb-4">
-                    <h2 class="font-header text-xl font-bold text-white uppercase italic tracking-widest">Bảng kiểm định 30 chỉ số</h2>
-                    <div class="flex gap-4">
-                        <span class="text-[10px] text-red-500 font-bold">18 RÁC THẢI</span>
-                        <span class="text-[10px] text-green-500 font-bold">12 NGUỒN LỰC</span>
+        <!-- CỘT 1: KHU VỰC NHẬP LIỆU (KIỂM TRA XE) -->
+        <div class="xl:col-span-8 space-y-6">
+            
+            <!-- PANEL 1: CẢM BIẾN RÁC THẢI (Tham Sân Si) -->
+            <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
+                <div class="scan-line hidden group-hover:block"></div>
+                <div class="flex justify-between items-end mb-6 border-b border-red-500/30 pb-2">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <span class="text-red-500 text-2xl">⚠</span> HỆ THỐNG XẢ THẢI (CẦN LOẠI BỎ)
+                    </h2>
+                    <span class="text-[10px] text-red-400 font-mono uppercase">Phát hiện độc tố gây nặng xe</span>
+                </div>
+                <div id="trash-inputs" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 max-h-[400px] overflow-y-auto hidden-scroll pr-2">
+                    <!-- JS sẽ điền dữ liệu vào đây -->
+                </div>
+            </div>
+
+            <!-- PANEL 2: CẢM BIẾN NĂNG LƯỢNG (Phẩm chất) -->
+            <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
+                <div class="flex justify-between items-end mb-6 border-b border-green-500/30 pb-2">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <span class="text-green-500 text-2xl">⚡</span> HỆ THỐNG ĐỘNG CƠ (CẦN NÂNG CẤP)
+                    </h2>
+                    <span class="text-[10px] text-green-400 font-mono uppercase">Nhiên liệu sạch để vận hành</span>
+                </div>
+                <div id="fuel-inputs" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 max-h-[400px] overflow-y-auto hidden-scroll pr-2">
+                    <!-- JS sẽ điền dữ liệu vào đây -->
+                </div>
+            </div>
+
+            <!-- PANEL 3: KHO KHÁI NIỆM (Thư viện tra cứu nhanh) -->
+            <div class="glass-panel rounded-2xl p-6 border-l-4 border-gold-500">
+                <h3 class="text-sm font-bold text-gold-400 mb-4 uppercase tracking-widest">Từ điển kỹ thuật (Dân dã hóa)</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-[11px] text-slate-300">
+                    <div class="bg-white/5 p-2 rounded">
+                        <b class="text-cyan-400">A-Lại-Da:</b> Ổ cứng lưu trữ dữ liệu lái xe (Nghiệp).
+                    </div>
+                    <div class="bg-white/5 p-2 rounded">
+                        <b class="text-cyan-400">Tái Sinh:</b> Đổi sang xe mới khi xe cũ hỏng.
+                    </div>
+                    <div class="bg-white/5 p-2 rounded">
+                        <b class="text-cyan-400">Trung Ấm:</b> Giai đoạn chờ xe mới (rất dễ lạc).
+                    </div>
+                    <div class="bg-white/5 p-2 rounded">
+                        <b class="text-cyan-400">Vô Minh:</b> Lái xe trong sương mù không đèn.
                     </div>
                 </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div id="trash-container" class="space-y-5 max-h-[600px] overflow-y-auto pr-4 scroll-hidden"></div>
-                    <div id="parts-container" class="space-y-5 max-h-[600px] overflow-y-auto pr-4 scroll-hidden"></div>
-                </div>
             </div>
         </div>
 
-        <!-- PHẢI: KẾT QUẢ & PHÂN LOẠI -->
-        <div class="lg:col-span-4 space-y-6">
-            <div class="glass rounded-3xl p-8 text-center sticky top-24 border-t-4 border-cyan-500">
-                <div id="v-icon" class="text-7xl mb-4 transition-all duration-700">🚲</div>
-                <h3 id="v-type" class="font-header font-bold text-2xl text-white mb-1">ĐANG QUÉT...</h3>
-                <p id="v-status" class="text-[10px] text-cyan-500 font-mono mb-6 uppercase tracking-widest">System Check Required</p>
+        <!-- CỘT 2: TRUNG TÂM ĐIỀU KHIỂN & AI -->
+        <div class="xl:col-span-4 space-y-6">
+            
+            <!-- DASHBOARD KẾT QUẢ -->
+            <div class="glass-panel rounded-2xl p-8 text-center sticky top-24">
+                <div id="v-icon" class="text-8xl mb-2 filter drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] transition-all duration-500">🚲</div>
+                <h3 id="v-type" class="text-2xl font-bold text-white uppercase mb-1">XE ĐẠP CÀ TÀNG</h3>
+                <p id="v-status" class="text-[10px] font-mono text-red-400 mb-6">Tình trạng: Rỉ sét, không an toàn</p>
                 
-                <div class="flex justify-center items-baseline gap-1 mb-6">
-                    <span id="score-val" class="text-7xl font-black text-white font-header">0</span>
-                    <span class="text-cyan-400 font-bold">%</span>
+                <!-- Score Circle -->
+                <div class="relative w-40 h-40 mx-auto mb-6 flex items-center justify-center">
+                    <svg class="absolute w-full h-full transform -rotate-90">
+                        <circle cx="80" cy="80" r="70" stroke="#1f2937" stroke-width="10" fill="none"/>
+                        <circle id="score-circle" cx="80" cy="80" r="70" stroke="#00f3ff" stroke-width="10" fill="none" stroke-dasharray="440" stroke-dashoffset="440" class="transition-all duration-1000"/>
+                    </svg>
+                    <div class="text-center">
+                        <span id="score-val" class="text-4xl font-bold text-white block">0</span>
+                        <span class="text-[10px] text-cyan-400 uppercase">Điểm An Toàn</span>
+                    </div>
                 </div>
 
-                <div class="h-[220px] flex justify-center mb-8">
+                <div class="h-48 mb-6">
                     <canvas id="radarChart"></canvas>
                 </div>
 
-                <button onclick="openUpgradePortal()" class="w-full py-5 bg-gradient-to-r from-cyan-600 to-blue-700 text-white font-black text-sm rounded-2xl hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest shadow-2xl">
-                    PHÂN TÍCH CHUYÊN SÂU ✨
+                <!-- MAIN ACTION BUTTON -->
+                <button onclick="analyzeVehicle()" class="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl font-bold text-white uppercase tracking-widest hover:scale-105 transition-transform pulse-btn shadow-lg">
+                    Đại Tu & Nâng Cấp Ngay ✨
                 </button>
             </div>
-        </div>
-    </main>
 
-    <!-- TRANG PHỦ: CỔNG ĐẠI TU PHƯƠNG TIỆN (UPGRADE PORTAL) -->
-    <div id="portal" class="fixed inset-0 z-[100] hidden bg-[#05070a] overflow-y-auto scroll-hidden">
-        <div class="max-w-5xl mx-auto px-6 py-12">
-            <!-- Nút đóng -->
-            <button onclick="closePortal()" class="fixed top-8 right-8 text-slate-500 hover:text-white transition-colors z-[110]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-
-            <div class="scan-effect glass p-10 rounded-[3rem] border border-cyan-500/20 shadow-[0_0_100px_rgba(0,242,255,0.1)]">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 border-b border-white/10 pb-10">
-                    <div>
-                        <p class="text-cyan-400 font-bold text-xs tracking-[0.3em] uppercase mb-2">Technical Analysis Report</p>
-                        <h2 class="font-header text-4xl font-bold text-white uppercase italic">Hồ sơ đại tu phương tiện</h2>
+            <!-- AI CHAT BOX -->
+            <div class="glass-panel rounded-2xl flex flex-col h-[500px] border border-cyan-500/30 shadow-2xl">
+                <div class="p-4 bg-slate-900/80 border-b border-slate-700 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <span class="text-xs font-bold text-cyan-400 tracking-widest">CHUYÊN GIA VŨ TRỤ (AI)</span>
                     </div>
-                    <div class="text-right">
-                        <p class="text-slate-500 text-xs font-mono">CHỈ SỐ AN TOÀN SINH TỬ</p>
-                        <p id="portal-score" class="text-5xl font-black text-cyan-400">0%</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                    <!-- PHẦN 1: KHÁI NIỆM & GIẢI THÍCH -->
-                    <div class="space-y-8">
-                        <div>
-                            <h4 class="text-white font-bold mb-4 flex items-center gap-2">
-                                <span class="w-2 h-6 bg-cyan-500"></span> 1. KHÁI NIỆM & GIẢI THÍCH ✨
-                            </h4>
-                            <div id="diagnostics-txt" class="text-slate-400 text-sm leading-relaxed space-y-4">
-                                <div class="loading-pulse bg-slate-800 h-20 rounded-lg"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 class="text-white font-bold mb-4 flex items-center gap-2">
-                                <span class="w-2 h-6 bg-red-500"></span> 2. LỖI HỆ THỐNG (RÁC NGHIỆP)
-                            </h4>
-                            <div id="error-list" class="grid grid-cols-1 gap-3"></div>
-                        </div>
-                    </div>
-
-                    <!-- PHẦN 2: 5 CHỦNG TỰ NÂNG CẤP -->
-                    <div class="space-y-8">
-                        <div>
-                            <h4 class="text-white font-bold mb-4 flex items-center gap-2">
-                                <span class="w-2 h-6 bg-green-500"></span> 3. LỘ TRÌNH SỬA CHỮA (5 CHỦNG TỰ)
-                            </h4>
-                            <div id="upgrade-steps" class="space-y-4">
-                                <!-- Chủng tự & Hành động -->
-                            </div>
-                        </div>
-
-                        <!-- PHẦN CHUYÊN GIA VŨ TRỤ (AI) -->
-                        <div class="p-6 bg-cyan-900/10 border border-cyan-500/20 rounded-2xl relative">
-                            <div class="absolute -top-3 right-6 bg-cyan-500 text-black text-[9px] font-black px-2 py-1 rounded">TRÍ TUỆ VŨ TRỤ</div>
-                            <h5 class="text-cyan-400 text-xs font-bold mb-3 uppercase italic">Chẩn đoán từ Trợ lý:</h5>
-                            <div id="ai-deep-msg" class="text-slate-300 text-xs italic leading-loose">
-                                Đang tổng hợp dữ liệu từ các tầng ý thức...
-                            </div>
-                            <div class="mt-4 flex gap-2">
-                                <input type="text" id="user-ask" placeholder="Hỏi thêm chuyên gia về cách sửa lỗi..." class="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-[10px] focus:outline-none focus:border-cyan-500">
-                                <button onclick="askExpert()" class="bg-cyan-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold">HỎI ✨</button>
-                            </div>
-                        </div>
-                    </div>
+                    <button onclick="clearChat()" class="text-[10px] text-slate-500 hover:text-white">XÓA</button>
                 </div>
                 
-                <div class="mt-12 text-center">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest italic">Kết dùng 5 chủng tự để tăng tốc tiến hóa tâm thức</p>
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 text-xs hidden-scroll bg-black/20">
+                    <div class="bg-cyan-900/20 border-l-2 border-cyan-500 p-3 rounded-r-xl text-slate-300">
+                        Chào bạn. Tôi là AI đã nạp dữ liệu từ thư viện <b>Giải Phẫu Sinh Tử</b>. Tôi biết cách:
+                        <ul class="list-disc ml-4 mt-2 space-y-1">
+                            <li>Sửa lỗi bằng <b>5 Chủng Tự</b> (AUM, HUM...)</li>
+                            <li>Tư vấn thực đơn <b>Năng lượng sạch</b> (An gì bổ nấy).</li>
+                            <li>Giải mã <b>Giấc mộng</b> từ A-Lại-Da.</li>
+                            <li>Thiết lập <b>GPS Tái Sinh</b> (Nguyện lực).</li>
+                        </ul>
+                        Hãy nhập thông số xe hoặc hỏi tôi bất cứ điều gì.
+                    </div>
                 </div>
+
+                <div class="p-3 bg-slate-900 border-t border-slate-700">
+                    <div class="flex gap-2">
+                        <input type="text" id="user-input" class="flex-1 bg-black border border-slate-700 rounded-lg px-3 py-2 text-white text-xs focus:border-cyan-500 outline-none" placeholder="Hỏi về cách sửa xe, giấc mơ, ăn uống..." onkeypress="if(event.key==='Enter') sendChat()">
+                        <button onclick="sendChat()" class="bg-cyan-600 text-white px-3 rounded-lg text-xs font-bold hover:bg-cyan-500">GỬI</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL: HỒ SƠ ĐẠI TU PHƯƠNG TIỆN (FULLSCREEN OVERLAY) -->
+    <div id="repair-modal" class="fixed inset-0 z-[100] hidden bg-black/95 backdrop-blur-xl overflow-y-auto">
+        <div class="max-w-6xl mx-auto px-4 py-12 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white text-4xl">&times;</button>
+            
+            <div class="text-center mb-12">
+                <p class="text-cyan-500 font-mono text-xs tracking-[0.5em] mb-2">DIAGNOSTIC REPORT COMPLETED</p>
+                <h2 class="text-4xl md:text-6xl font-bold text-white uppercase text-glow">Hồ Sơ Đại Tu Phương Tiện</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- CỘT 1: CHẨN ĐOÁN LỖI (TỪ 30 CHỈ SỐ) -->
+                <div class="glass-panel p-8 rounded-3xl border-t-4 border-red-500">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <span class="text-red-500">1.</span> CÁC BỘ PHẬN HƯ HỎNG
+                    </h3>
+                    <div id="diagnosis-content" class="text-sm text-slate-300 space-y-4 leading-relaxed">
+                        <!-- AI điền vào đây -->
+                        <div class="animate-pulse bg-slate-800 h-4 rounded w-3/4"></div>
+                        <div class="animate-pulse bg-slate-800 h-4 rounded w-full"></div>
+                    </div>
+                </div>
+
+                <!-- CỘT 2: PHÁC ĐỒ SỬA CHỮA (5 CHỦNG TỰ + ĂN UỐNG) -->
+                <div class="glass-panel p-8 rounded-3xl border-t-4 border-gold-500">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <span class="text-gold-500">2.</span> CÔNG CỤ SỬA CHỮA
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-white/5 p-4 rounded-xl">
+                            <h4 class="text-cyan-400 font-bold text-xs uppercase mb-2">A. Âm Thanh Trị Liệu (Tần số)</h4>
+                            <div id="sound-prescription" class="text-sm text-slate-300">
+                                <!-- AI gợi ý AUM/HUM/TRAM... -->
+                            </div>
+                        </div>
+                        <div class="bg-white/5 p-4 rounded-xl">
+                            <h4 class="text-green-400 font-bold text-xs uppercase mb-2">B. Nhiên Liệu (Ăn Uống)</h4>
+                            <div id="food-prescription" class="text-sm text-slate-300">
+                                <!-- AI gợi ý ăn chay/bớt thịt -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CỘT 3: ĐỊNH VỊ GPS (NGUYỆN TÁI SINH) -->
+                <div class="glass-panel p-8 rounded-3xl border-t-4 border-blue-500">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <span class="text-blue-500">3.</span> CÀI ĐẶT ĐÍCH ĐẾN (GPS)
+                    </h3>
+                    <div id="gps-content" class="text-sm text-slate-300 space-y-4">
+                        <p class="italic">"Xe tốt mà không có bản đồ thì vẫn lạc. Đây là lời nguyện để định hướng cho A-Lại-Da."</p>
+                        <div class="p-4 bg-blue-900/20 border border-blue-500/30 rounded-xl font-serif text-white">
+                            <!-- AI generate lời nguyện -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="mt-12 text-center">
+                <button onclick="closeModal()" class="px-10 py-3 border border-white/20 rounded-full text-sm font-bold text-white hover:bg-white hover:text-black transition-all uppercase">
+                    Đã Nhận Phác Đồ - Bắt Đầu Sửa Xe
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- SCRIPT LOGIC -->
     <script>
-        const apiKey = "AIzaSyDjRtjCOSMeailBS1xQa3xn5Wwm-EEESUY"; // API Key sẽ được môi trường cung cấp
+        const apiKey = "AIzaSyDjRtjCOSMeailBS1xQa3xn5Wwm-EEESUY"; // <--- DÁN API KEY VÀO ĐÂY
 
-        const trashData = ["Hưởng thụ (Tham)", "Ái dục/Mê đắm", "Sân hận/Nóng nảy", "Vô minh/U mê", "Ngã mạn/Tự cao", "Nghi ngờ", "Cố chấp", "Rối loạn tâm trí", "Tự ti/Yếu đuối", "Ganh tị/So đo", "Soi mói", "Tà niệm", "Lo âu/Phiền não", "Đau thương bi lụy", "Tiếc nuối", "Chấp trước", "Vọng tưởng", "Dối trá"];
-        const partsData = ["Tình thương thật", "Đạo hạnh/Tử tế", "Nhẫn nhục", "Dịu dàng", "Vui vẻ thanh khiết", "Đức tin trọn vẹn", "Tinh tấn", "Sức mạnh vô úy", "Lời nguyện sâu", "Sáng suốt/Chân tri", "Thanh thoát", "Định lực/Yên tĩnh"];
+        // Dữ liệu từ các file tài liệu đã cung cấp
+        const trashData = [
+            "Ham muốn vật chất (Tham)", "Nghiện sắc dục/cảm xúc", "Nóng giận/Sân hận", 
+            "Mê mờ/Không hiểu biết (Si)", "Tự cao/Cái tôi lớn (Mạn)", "Nghi ngờ vô căn cứ", 
+            "Cố chấp quan điểm sai", "Lo lắng/Rối loạn", "Tự ti/Mặc cảm", 
+            "Ganh tị/Đố kỵ", "Soi mói/Phán xét", "Nghĩ bậy/Tà niệm", 
+            "Sợ chết/Sợ mất", "Tiếc nuối quá khứ", "Bám chấp người thân", 
+            "Sống giả dối", "Lười biếng tu sửa", "Sát sinh/Hại vật"
+        ];
+
+        const fuelData = [
+            "Tình thương (Từ bi)", "Sống tử tế (Đạo hạnh)", "Chịu đựng được (Nhẫn)", 
+            "Dịu dàng/Hòa ái", "Vui vẻ/Lạc quan", "Tin vào nhân quả (Tín)", 
+            "Nỗ lực bền bỉ (Tấn)", "Không sợ hãi (Vô úy)", "Có mục đích sống (Nguyện)", 
+            "Sáng suốt (Trí tuệ)", "Biết mình đang làm gì (Tỉnh)", "Tâm bình ổn (Định)"
+        ];
 
         let radarChart;
-        
+
         function init() {
-            const tc = document.getElementById('trash-container');
-            const pc = document.getElementById('parts-container');
-            
-            trashData.forEach((name, i) => tc.innerHTML += createSlider(name, i, 'trash'));
-            partsData.forEach((name, i) => pc.innerHTML += createSlider(name, i, 'parts'));
+            // Render Sliders
+            const tContainer = document.getElementById('trash-inputs');
+            const fContainer = document.getElementById('fuel-inputs');
 
-            initRadar();
-            updateStats();
-            
-            checkAIStatus();
+            trashData.forEach((label, i) => {
+                tContainer.innerHTML += createSlider(label, i, 'trash', 'red');
+            });
+            fuelData.forEach((label, i) => {
+                fContainer.innerHTML += createSlider(label, i, 'fuel', 'green');
+            });
+
+            initChart();
+            updateDashboard();
+            checkAI();
         }
 
-        function checkAIStatus() {
-            const status = document.getElementById('conn-status');
-            status.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> VỆ TINH GEMINI TRỰC TUYẾN ✨`;
-            status.classList.replace('text-slate-500', 'text-green-400');
-        }
-
-        function createSlider(name, id, type) {
+        function createSlider(label, id, type, color) {
+            const colorClass = color === 'red' ? 'text-red-400' : 'text-green-400';
             return `
                 <div class="group">
-                    <div class="flex justify-between text-[11px] mb-1">
-                        <span class="text-slate-400 group-hover:text-cyan-300 transition-colors">${name}</span>
-                        <span id="v-${type}-${id}" class="${type==='trash'?'text-red-500':'text-green-400'} font-bold">50%</span>
+                    <div class="flex justify-between mb-1 text-[11px] font-bold uppercase">
+                        <span class="text-slate-400 group-hover:text-white transition-colors">${label}</span>
+                        <span id="val-${type}-${id}" class="${colorClass} font-mono">50%</span>
                     </div>
-                    <input type="range" id="in-${type}-${id}" min="0" max="100" value="50" class="slider-custom" oninput="updateStats()">
+                    <input type="range" id="in-${type}-${id}" min="0" max="100" value="50" oninput="updateDashboard()">
                 </div>
             `;
         }
 
-        function initRadar() {
+        function initChart() {
             const ctx = document.getElementById('radarChart').getContext('2d');
             radarChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['THAM', 'SÂN', 'SI', 'NGÃ', 'ĐỊNH', 'THƯƠNG', 'TRÍ'],
+                    labels: ['Rác Thải (Tham/Sân)', 'Vô Minh (Si)', 'Cái Tôi (Ngã)', 'Năng Lượng (Định)', 'Tình Thương (Bi)', 'Trí Tuệ (Tuệ)'],
                     datasets: [{
-                        data: [50, 50, 50, 50, 50, 50, 50],
-                        backgroundColor: 'rgba(0, 242, 255, 0.05)',
-                        borderColor: '#00f2ff',
-                        borderWidth: 1, pointRadius: 0
+                        label: 'Trạng Thái Xe',
+                        data: [50, 50, 50, 50, 50, 50],
+                        backgroundColor: 'rgba(0, 243, 255, 0.1)',
+                        borderColor: '#00f3ff',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#fff',
+                        pointRadius: 3
                     }]
                 },
                 options: {
-                    scales: { r: { grid: {color: 'rgba(255,255,255,0.05)'}, angleLines: {display: false}, ticks: {display: false}, pointLabels: {color: '#64748b', font: {size: 8}} } },
-                    plugins: { legend: {display: false} }
+                    scales: {
+                        r: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            pointLabels: { color: '#94a3b8', font: { size: 10, family: 'Rajdhani', weight: 'bold' } },
+                            ticks: { display: false, backdropColor: 'transparent' },
+                            suggestedMin: 0, suggestedMax: 100
+                        }
+                    },
+                    plugins: { legend: { display: false } },
+                    maintainAspectRatio: false
                 }
             });
         }
 
-        function updateStats() {
-            let tSum = 0; trashData.forEach((_, i) => { const v = parseInt(document.getElementById(`in-trash-${i}`).value); document.getElementById(`v-trash-${i}`).innerText = v+'%'; tSum += v; });
-            let pSum = 0; partsData.forEach((_, i) => { const v = parseInt(document.getElementById(`in-parts-${i}`).value); document.getElementById(`v-parts-${i}`).innerText = v+'%'; pSum += v; });
+        function updateDashboard() {
+            // Calculate Scores
+            let trashScore = 0;
+            trashData.forEach((_, i) => {
+                const val = parseInt(document.getElementById(`in-trash-${i}`).value);
+                document.getElementById(`val-trash-${i}`).innerText = val + '%';
+                trashScore += val;
+            });
+            let fuelScore = 0;
+            fuelData.forEach((_, i) => {
+                const val = parseInt(document.getElementById(`in-fuel-${i}`).value);
+                document.getElementById(`val-fuel-${i}`).innerText = val + '%';
+                fuelScore += val;
+            });
 
-            const tAvg = tSum / 18; const pAvg = pSum / 12;
-            let score = Math.round((pAvg * 2.3) - (tAvg * 1.3));
-            score = Math.max(0, Math.min(100, score));
+            const avgTrash = trashScore / trashData.length;
+            const avgFuel = fuelScore / fuelData.length;
 
-            document.getElementById('score-val').innerText = score;
-            const icon = document.getElementById('v-icon');
-            const typeTxt = document.getElementById('v-type');
+            // Safety Score Algorithm
+            let safety = Math.round((avgFuel * 2.5) - (avgTrash * 1.5));
+            safety = Math.max(0, Math.min(100, safety));
+
+            // Update UI
+            document.getElementById('score-val').innerText = safety;
+            const circle = document.getElementById('score-circle');
+            const offset = 440 - (440 * safety) / 100;
+            circle.style.strokeDashoffset = offset;
             
-            if(score < 20) { icon.innerText = "🚲"; typeTxt.innerText = "XE ĐẠP RỈ SÉT"; }
-            else if(score < 45) { icon.innerText = "🚗"; typeTxt.innerText = "XE CŨ NÁT BỐC KHÓI"; }
-            else if(score < 70) { icon.innerText = "🚘"; typeTxt.innerText = "XE GIA ĐÌNH CƠ BẢN"; }
-            else if(score < 90) { icon.innerText = "🏎️"; typeTxt.innerText = "SIÊU XE THỂ THAO"; }
-            else { icon.innerText = "🚀"; typeTxt.innerText = "PHI THUYỀN ÁNH SÁNG"; }
+            // Color Coding based on score
+            if (safety < 30) {
+                circle.style.stroke = "#ff3333";
+                document.getElementById('score-val').className = "text-4xl font-bold text-red-500 block";
+            } else if (safety < 70) {
+                circle.style.stroke = "#ffd700";
+                document.getElementById('score-val').className = "text-4xl font-bold text-yellow-400 block";
+            } else {
+                circle.style.stroke = "#00f3ff";
+                document.getElementById('score-val').className = "text-4xl font-bold text-cyan-400 block";
+            }
 
-            radarChart.data.datasets[0].data = [tAvg, document.getElementById('in-trash-2').value, document.getElementById('in-trash-3').value, document.getElementById('in-trash-4').value, document.getElementById('in-parts-11').value, document.getElementById('in-parts-0').value, document.getElementById('in-parts-9').value];
+            // Vehicle Type Logic
+            const icon = document.getElementById('v-icon');
+            const type = document.getElementById('v-type');
+            const status = document.getElementById('v-status');
+
+            if (safety < 20) {
+                icon.innerText = "🚲"; type.innerText = "XE ĐẠP RỈ SÉT"; 
+                status.innerText = "Cảnh báo: Khung gầm mục, không thể đi xa.";
+                status.className = "text-[10px] font-mono text-red-500 mb-6 uppercase tracking-widest";
+            } else if (safety < 45) {
+                icon.innerText = "🛵"; type.innerText = "XE MÁY CŨ";
+                status.innerText = "Cảnh báo: Động cơ yếu, thiếu nhiên liệu sạch.";
+                status.className = "text-[10px] font-mono text-orange-500 mb-6 uppercase tracking-widest";
+            } else if (safety < 75) {
+                icon.innerText = "🚙"; type.innerText = "XE GIA ĐÌNH";
+                status.innerText = "Ổn định: Đủ dùng cho đời sống thường.";
+                status.className = "text-[10px] font-mono text-yellow-400 mb-6 uppercase tracking-widest";
+            } else if (safety < 95) {
+                icon.innerText = "🏎️"; type.innerText = "SIÊU XE";
+                status.innerText = "Tối ưu: Tốc độ cao, khung gầm vững chắc.";
+                status.className = "text-[10px] font-mono text-blue-400 mb-6 uppercase tracking-widest";
+            } else {
+                icon.innerText = "🚀"; type.innerText = "PHI THUYỀN";
+                status.innerText = "Tuyệt đối: Sẵn sàng vượt thoát không gian.";
+                status.className = "text-[10px] font-mono text-green-400 mb-6 uppercase tracking-widest";
+            }
+
+            // Update Radar Chart Data (Simplified grouping)
+            radarChart.data.datasets[0].data = [
+                (parseInt(document.getElementById('in-trash-0').value) + parseInt(document.getElementById('in-trash-2').value))/2, // Tham San
+                parseInt(document.getElementById('in-trash-3').value), // Si
+                parseInt(document.getElementById('in-trash-4').value), // Nga
+                parseInt(document.getElementById('in-fuel-11').value), // Dinh
+                parseInt(document.getElementById('in-fuel-0').value), // Bi
+                parseInt(document.getElementById('in-fuel-9').value)  // Tue
+            ];
             radarChart.update();
         }
 
-        async function geminiCall(prompt, systemMsg = "") {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemMsg }] }
-            };
-
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    const result = await response.json();
-                    return result.candidates?.[0]?.content?.parts?.[0]?.text;
-                } catch (e) {
-                    await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
-                }
+        function checkAI() {
+            if(apiKey) {
+                const s = document.getElementById('ai-status');
+                s.innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> AI ONLINE`;
+                s.className = "text-green-400 flex items-center gap-2 text-shadow";
             }
-            return "Xin lỗi, vệ tinh đang gặp sự cố nhiễu loạn từ bão mặt trời. Vui lòng thử lại sau.";
         }
 
-        async function openUpgradePortal() {
-            const portal = document.getElementById('portal');
-            const score = document.getElementById('score-val').innerText;
-            document.getElementById('portal-score').innerText = score + '%';
-            portal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+        // --- AI LOGIC ---
+        async function callGemini(prompt) {
+            if (!apiKey) return "Lỗi: Chưa nhập Chìa Khóa Vũ Trụ (API Key).";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (e) { return "Mất kết nối với vệ tinh. Vui lòng thử lại."; }
+        }
 
-            // 1. Phân tích rác
-            const errors = [];
-            trashData.forEach((name, i) => {
+        async function analyzeVehicle() {
+            const modal = document.getElementById('repair-modal');
+            const diagContent = document.getElementById('diagnosis-content');
+            const soundContent = document.getElementById('sound-prescription');
+            const foodContent = document.getElementById('food-prescription');
+            const gpsContent = document.querySelector('#gps-content div'); // The inner div
+
+            modal.classList.remove('hidden');
+            
+            // Loading State
+            diagContent.innerHTML = '<p class="animate-pulse text-cyan-500">Đang quét dữ liệu A-Lại-Da...</p>';
+            soundContent.innerHTML = '...';
+            foodContent.innerHTML = '...';
+            gpsContent.innerHTML = '...';
+
+            // Gather critical data
+            let maxTrashVal = -1; let maxTrashName = "";
+            trashData.forEach((n, i) => {
                 const v = parseInt(document.getElementById(`in-trash-${i}`).value);
-                if(v > 70) errors.push({name, v});
-            });
-            const errorDiv = document.getElementById('error-list');
-            errorDiv.innerHTML = "";
-            errors.slice(0, 3).forEach(e => {
-                errorDiv.innerHTML += `
-                    <div class="flex justify-between items-center p-3 bg-red-900/10 border border-red-500/20 rounded-xl">
-                        <span class="text-xs text-red-200 font-bold">${e.name}</span>
-                        <span class="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded">Lỗi mức độ ${e.v}%</span>
-                    </div>
-                `;
+                if (v > maxTrashVal) { maxTrashVal = v; maxTrashName = n; }
             });
 
-            // 2. Chủng tự căn bản
-            const upgradeDiv = document.getElementById('upgrade-steps');
-            upgradeDiv.innerHTML = `
-                ${createUpgradeStep("AUM", "Sửa khung gầm: Ăn uống sạch, giữ thân ngay ngắn.")}
-                ${createUpgradeStep("HUM", "Lọc dầu cảm xúc: Thực tập buông xả các dính mắc.")}
-                ${createUpgradeStep("TRAM", "Tản nhiệt sân hận: Nhìn cơn giận như một làn khói.")}
-                ${createUpgradeStep("HRIH", "Chỉnh lái tình thương: Tập thương mình và thương người.")}
-                ${createUpgradeStep("AH", "Nạp năng lượng trí tuệ: Thiền định trong im lặng tuyệt cùng.")}
+            let minFuelVal = 101; let minFuelName = "";
+            fuelData.forEach((n, i) => {
+                const v = parseInt(document.getElementById(`in-fuel-${i}`).value);
+                if (v < minFuelVal) { minFuelVal = v; minFuelName = n; }
+            });
+
+            const vType = document.getElementById('v-type').innerText;
+            const score = document.getElementById('score-val').innerText;
+
+            const prompt = `
+                Đóng vai Chuyên Gia Vũ Trụ. Phân tích phương tiện tâm thức:
+                - Loại xe: ${vType} (Điểm an toàn: ${score}%)
+                - Lỗi nặng nhất (Rác): ${maxTrashName} (${maxTrashVal}%)
+                - Điểm yếu nhất (Nhiên liệu): ${minFuelName} (${minFuelVal}%)
+
+                Yêu cầu trả về định dạng JSON 3 phần:
+                1. "diagnosis": Giải thích tại sao xe bị tình trạng này. Dùng ngôn ngữ cơ khí/đời thường (vd: Lỗi sân hận làm nóng máy).
+                2. "repair":
+                   - Âm thanh: Chọn 1 trong 5 chủng tự (AUM, HUM, TRAM, HRIH, AH) phù hợp nhất để sửa lỗi trên. Giải thích ngắn.
+                   - Ăn uống: Khuyên ăn gì để tăng năng lượng sạch, giảm năng lượng trược (thịt động vật gây sợ hãi...).
+                3. "vow": Một câu nguyện ngắn (GPS) để người dùng đọc hàng ngày giúp định hướng lại tâm thức.
+
+                Output JSON only: { "diagnosis": "...", "repair": { "sound": "...", "diet": "..." }, "vow": "..." }
             `;
 
-            // 3. AI Phân tích chuyên sâu
-            const vehicle = document.getElementById('v-type').innerText;
-            const topTrash = errors.map(e => e.name).join(", ");
-            const prompt = `Phân tích trạng thái "phương tiện tâm thức" này: Loại xe ${vehicle}, điểm an toàn ${score}%. Các lỗi nặng nhất: ${topTrash}. Hãy giải thích khái niệm tại sao cần "đại tu" và đưa ra 1 lời khuyên thực hành cụ thể dựa trên 5 chủng tự (AUM HUM TRAM HRIH AH). Phong cách Lão Già Nguyên Chính, ẩn dụ sâu sắc, không tôn giáo.`;
-            const system = "Bạn là Chuyên Gia Vũ Trụ, một trí tuệ cổ xưa chuyên giúp con người nâng cấp phương tiện ý thức trước kỳ Bão Mặt Trời. Ngôn ngữ của bạn sắc bén, giàu hình ảnh và thực tế.";
-
-            document.getElementById('diagnostics-txt').innerHTML = '<div class="loading-pulse bg-slate-800 h-20 rounded-lg"></div>';
-            document.getElementById('ai-deep-msg').innerText = "Đang quét dữ liệu nghiệp quả...";
-
-            const analysis = await geminiCall(prompt, system);
-            document.getElementById('diagnostics-txt').innerHTML = marked.parse(analysis || "Không thể kết nối vệ tinh.");
-            document.getElementById('ai-deep-msg').innerText = "Vệ tinh đã sẵn sàng phản hồi thêm.";
+            const raw = await callGemini(prompt);
+            // Clean markdown json block if present
+            const jsonStr = raw.replace(/```json|```/g, '').trim();
+            
+            try {
+                const data = JSON.parse(jsonStr);
+                diagContent.innerHTML = marked.parse(data.diagnosis);
+                soundContent.innerHTML = marked.parse(data.repair.sound);
+                foodContent.innerHTML = marked.parse(data.repair.diet);
+                gpsContent.innerHTML = data.vow;
+            } catch (e) {
+                diagContent.innerHTML = "Dữ liệu bị nhiễu. Lời khuyên chung: Hãy giảm bớt thịt động vật, tập ngâm AUM mỗi sáng để ổn định khung gầm.";
+            }
         }
 
-        async function askExpert() {
-            const input = document.getElementById('user-ask');
-            const msg = input.value;
-            if(!msg) return;
+        async function sendChat() {
+            const input = document.getElementById('user-input');
+            const box = document.getElementById('chat-box');
+            const msg = input.value.trim();
+            if (!msg) return;
 
-            const vehicle = document.getElementById('v-type').innerText;
-            document.getElementById('ai-deep-msg').innerText = "Đang giải mã tín hiệu...";
-            input.value = "";
+            // User Message
+            box.innerHTML += `<div class="text-right mb-2"><span class="bg-blue-900/50 text-blue-200 px-3 py-2 rounded-lg inline-block border border-blue-500/30">${msg}</span></div>`;
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
 
-            const prompt = `Tôi đang sở hữu xe ${vehicle}. Câu hỏi của tôi là: ${msg}. Hãy trả lời ngắn gọn, tập trung vào kỹ thuật tu tập hoặc dùng 5 chủng tự để giải quyết vấn đề này.`;
-            const system = "Bạn là Chuyên Gia Vũ Trụ. Trả lời ngắn, sắc, đi thẳng vào vấn đề kỹ thuật tâm linh.";
-
-            const reply = await geminiCall(prompt, system);
-            document.getElementById('ai-deep-msg').innerHTML = marked.parse(reply);
-        }
-
-        function createUpgradeStep(mantra, desc) {
-            return `
-                <div class="p-4 bg-white/5 border border-white/5 rounded-2xl flex gap-4 items-center">
-                    <div class="text-2xl font-black text-cyan-400 font-header">${mantra}</div>
-                    <div class="text-[11px] text-slate-400">${desc}</div>
-                </div>
+            // AI Context
+            const context = `
+                Bạn là Chuyên Gia Vũ Trụ. Dữ liệu nền tảng:
+                1. "Giải Phẫu Sinh Tử": Chết là đổi xe. Ý thức là dữ liệu.
+                2. "An Gì Bổ Ấy": Ăn thịt là nạp năng lượng sợ hãi (trược). Ăn chay là nạp ánh sáng (thanh).
+                3. "5 Chủng Tự": AUM (Trị thân), HUM (Trị nghiệp), TRAM (Trị nóng nảy/Sân), HRIH (Trị ích kỷ), AH (Trị vô minh).
+                4. "Mộng Là Gì": Mộng do thân bệnh (giả) hoặc do A-lại-da thức (thật).
+                
+                Hãy trả lời câu hỏi: "${msg}". 
+                Phong cách: Ngắn gọn, khoa học, thực tế, không mê tín. Tập trung vào giải pháp "Sửa xe".
             `;
+
+            const reply = await callGemini(context);
+            
+            // AI Message
+            box.innerHTML += `<div class="text-left mb-2"><span class="bg-cyan-900/20 text-slate-300 px-3 py-2 rounded-lg inline-block border border-cyan-500/30">${marked.parse(reply)}</span></div>`;
+            box.scrollTop = box.scrollHeight;
         }
 
-        function closePortal() {
-            document.getElementById('portal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
+        function clearChat() {
+            document.getElementById('chat-box').innerHTML = '';
+        }
+
+        function closeModal() {
+            document.getElementById('repair-modal').classList.add('hidden');
         }
 
         window.onload = init;
     </script>
 </body>
 </html>
-
