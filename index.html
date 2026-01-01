@@ -440,13 +440,26 @@
             radarChart.update();
         }
 
-        function checkAI() {
-            if(apiKey) {
+        async function checkAI() {
+            try {
+                const res = await fetch("https://TEN-PROJECT.vercel.app/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: "ping" })
+                });
+
+                if (res.ok) {
+                    const s = document.getElementById('ai-status');
+                    s.innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> AI ONLINE`;
+                    s.className = "text-green-400 flex items-center gap-2 text-shadow";
+                }
+            } catch (e) {
                 const s = document.getElementById('ai-status');
-                s.innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> AI ONLINE`;
-                s.className = "text-green-400 flex items-center gap-2 text-shadow";
+                s.innerText = "AI OFFLINE";
+                s.className = "text-red-400";
             }
         }
+
 
         // --- AI LOGIC ---
         async function callGemini(prompt) {
@@ -575,4 +588,5 @@
     </script>
 </body>
 </html>
+
 
